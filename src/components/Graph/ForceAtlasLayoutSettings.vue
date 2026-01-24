@@ -1,6 +1,6 @@
 <template>
   <Field
-    label="Initial iterations"
+    label="初始迭代次数"
     fieldContainerClassName="test_fa2_iteration_amount"
   >
     <NumericInput
@@ -10,7 +10,7 @@
     />
   </Field>
 
-  <Field label="Gravity" fieldContainerClassName="test_fa2_gravity">
+  <Field label="重力" fieldContainerClassName="test_fa2_gravity">
     <NumericInput
       :value="modelValue.gravity"
       @update="update('gravity', $event)"

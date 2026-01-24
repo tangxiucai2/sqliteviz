@@ -45,17 +45,40 @@ export default {
 
   async created() {
     const state = this.$store.state
-    let result = (await state.db.execute('select sqlite_version()')).values
-    this.info.push({
-      name: 'SQLite version',
-      info: result['sqlite_version()']
-    })
+    try {
+      let result = await state.db.execute('select sqlite_version()')
+      // 处理不同的API响应格式
+      let sqliteVersion = ''
+      if (result && result.values) {
+        sqliteVersion = result.values['sqlite_version()']
+      } else if (result && result[0]) {
+        sqliteVersion = result[0]['sqlite_version()'] || result[0].sqlite_version
+      } else if (result && typeof result === 'object') {
+        sqliteVersion = result['sqlite_version()'] || result.sqlite_version
+      }
+      this.info.push({
+        name: 'SQLite version',
+        info: sqliteVersion
+      })
 
-    result = (await state.db.execute('PRAGMA compile_options')).values
-    this.info.push({
-      name: 'SQLite compile options',
-      info: result.compile_options
-    })
+      result = await state.db.execute('PRAGMA compile_options')
+      // 处理不同的API响应格式
+      let compileOptions = []
+      if (result && result.values) {
+        compileOptions = result.values.compile_options
+      } else if (result && Array.isArray(result)) {
+        compileOptions = result.map(opt => opt.compile_options || opt)
+      } else if (result && result.values && Array.isArray(result.values)) {
+        compileOptions = result.values
+      }
+      this.info.push({
+        name: 'SQLite compile options',
+        info: compileOptions
+      })
+    } catch (error) {
+      console.error('Failed to get database info:', error)
+      // 可以选择不添加这些信息，或者添加错误信息
+    }
   }
 }
 </script>

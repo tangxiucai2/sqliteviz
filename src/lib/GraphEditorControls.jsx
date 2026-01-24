@@ -7,14 +7,14 @@ class EditorControls extends Component {
     super(props, context)
 
     this.localize = key =>
-      localizeString(this.props.dictionaries || {}, this.props.locale, key)
+      localizeString(this.props.dictionaries || {}, this.props.locale || 'zh', key)
   }
 
   getChildContext() {
     return {
       dictionaries: this.props.dictionaries || {},
       localize: this.localize,
-      locale: this.props.locale
+      locale: this.props.locale || 'zh'
     }
   }
 
@@ -40,7 +40,7 @@ EditorControls.propTypes = {
 }
 
 EditorControls.defaultProps = {
-  locale: 'en'
+  locale: 'zh'
 }
 
 EditorControls.childContextTypes = {

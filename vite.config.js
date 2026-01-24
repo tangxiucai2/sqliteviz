@@ -1,9 +1,9 @@
+import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -42,7 +42,6 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
   optimizeDeps: {
-    include: ['sql.js'],
     esbuildOptions: {
       define: {
         global: 'globalThis'
@@ -53,7 +52,7 @@ export default defineConfig({
     sourcemap: true,
     assetsInlineLimit: 10000,
     commonjsOptions: {
-      include: ['sql.js', /sql-wasm.js/, /node_modules/]
+      include: [/node_modules/]
     },
     rollupOptions: {
       output: {

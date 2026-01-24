@@ -1,7 +1,7 @@
 <template>
   <div class="pivot-ui">
     <div class="row">
-      <label>Columns</label>
+      <label>列</label>
       <multiselect
         v-model="cols"
         class="sqliteviz-select cols"
@@ -16,20 +16,20 @@
         placeholder=""
       >
         <template #maxElements>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
 
-        <template #placeholder>Choose columns</template>
+        <template #placeholder>选择列</template>
 
         <template #noResult>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
       </multiselect>
       <pivot-sort-btn v-model="colOrder" class="sort-btn" direction="col" />
     </div>
 
     <div class="row">
-      <label>Rows</label>
+      <label>行</label>
       <multiselect
         v-model="rows"
         class="sqliteviz-select rows"
@@ -45,35 +45,35 @@
         placeholder=""
       >
         <template #maxElements>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
 
-        <template #placeholder>Choose rows</template>
+        <template #placeholder>选择行</template>
 
         <template #noResult>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
       </multiselect>
       <pivot-sort-btn v-model="rowOrder" class="sort-btn" direction="row" />
     </div>
 
     <div class="row aggregator">
-      <label>Aggregator</label>
+      <label>聚合函数</label>
       <multiselect
         v-model="aggregator"
         class="sqliteviz-select short aggregator"
         :options="aggregators"
-        label="name"
+        label="名称"
         trackBy="name"
         :closeOnSelect="true"
         :showLabels="false"
         :hideSelected="true"
         :optionHeight="29"
         openDirection="bottom"
-        placeholder="Choose a function"
+        placeholder="选择一个函数"
       >
         <template #noResult>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
       </multiselect>
 
@@ -88,7 +88,7 @@
         :hideSelected="true"
         :optionHeight="29"
         openDirection="bottom"
-        placeholder="Choose an argument"
+        placeholder="选择一个参数"
       />
 
       <multiselect
@@ -102,12 +102,12 @@
         :hideSelected="true"
         :optionHeight="29"
         openDirection="bottom"
-        placeholder="Choose a second argument"
+        placeholder="选择第二个参数"
       />
     </div>
 
     <div class="row">
-      <label>View</label>
+      <label>视图</label>
       <multiselect
         v-model="renderer"
         class="sqliteviz-select short renderer"
@@ -120,10 +120,10 @@
         :hideSelected="true"
         :optionHeight="29"
         openDirection="bottom"
-        placeholder="Choose a view"
+        placeholder="选择一个视图"
       >
         <template #noResult>
-          <span class="no-results">No Results</span>
+          <span class="no-results">无结果</span>
         </template>
       </multiselect>
     </div>
@@ -131,15 +131,15 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import Multiselect from 'vue-multiselect'
-import PivotSortBtn from './PivotSortBtn'
+import $ from 'jquery';
+import Multiselect from 'vue-multiselect';
 import {
-  renderers,
   aggregators,
-  zeroValAggregators,
-  twoValAggregators
-} from '../pivotHelper'
+  renderers,
+  twoValAggregators,
+  zeroValAggregators
+} from '../pivotHelper';
+import PivotSortBtn from './PivotSortBtn';
 
 export default {
   name: 'PivotUi',

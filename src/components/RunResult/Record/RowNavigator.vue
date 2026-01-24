@@ -2,7 +2,7 @@
   <div class="record-navigator">
     <icon-button
       :disabled="modelValue === 0"
-      tooltip="First row"
+      tooltip="第一行"
       tooltipPosition="top-left"
       class="first"
       @click="$emit('update:modelValue', 0)"
@@ -11,7 +11,7 @@
     </icon-button>
     <icon-button
       :disabled="modelValue === 0"
-      tooltip="Previous row"
+      tooltip="上一行"
       tooltipPosition="top-left"
       class="prev"
       @click="$emit('update:modelValue', modelValue - 1)"
@@ -20,7 +20,7 @@
     </icon-button>
     <icon-button
       :disabled="modelValue === total - 1"
-      tooltip="Next row"
+      tooltip="下一行"
       tooltipPosition="top-left"
       class="next"
       @click="$emit('update:modelValue', modelValue + 1)"
@@ -29,7 +29,7 @@
     </icon-button>
     <icon-button
       :disabled="modelValue === total - 1"
-      tooltip="Last row"
+      tooltip="最后一行"
       tooltipPosition="top-left"
       class="last"
       @click="$emit('update:modelValue', total - 1)"

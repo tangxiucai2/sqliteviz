@@ -1,5 +1,5 @@
 <template>
-  <Field label="Color" fieldContainerClassName="test_edge_color">
+  <Field label="颜色" fieldContainerClassName="test_edge_color">
     <RadioBlocks
       :options="edgeColorTypeOptions"
       :activeOption="modelValue.type"
@@ -44,7 +44,7 @@
 
   <Field
     v-if="modelValue.type !== 'constant' && modelValue.sourceUsage === 'map_to'"
-    label="Color as"
+    label="颜色作为"
     fieldContainerClassName="test_edge_color_as"
   >
     <RadioBlocks
@@ -56,7 +56,7 @@
 
   <Field
     v-if="modelValue.type !== 'constant' && modelValue.sourceUsage === 'map_to'"
-    label="Colorscale direction"
+    label="颜色刻度方向"
     fieldContainerClassName="test_edge_color_colorscale_direction"
   >
     <RadioBlocks

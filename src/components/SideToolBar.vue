@@ -3,7 +3,7 @@
     <icon-button
       ref="sqlEditorBtn"
       :active="panel === 'sqlEditor'"
-      tooltip="Switch panel to SQL editor"
+      tooltip="切换到SQL编辑器面板"
       tooltipPosition="top-left"
       @click="$emit('switchTo', 'sqlEditor')"
     >
@@ -13,7 +13,7 @@
     <icon-button
       ref="tableBtn"
       :active="panel === 'table'"
-      tooltip="Switch panel to result set"
+      tooltip="切换到结果集面板"
       tooltipPosition="top-left"
       @click="$emit('switchTo', 'table')"
     >
@@ -23,7 +23,7 @@
     <icon-button
       ref="dataViewBtn"
       :active="panel === 'dataView'"
-      tooltip="Switch panel to data view"
+      tooltip="切换到数据视图面板"
       tooltipPosition="top-left"
       @click="$emit('switchTo', 'dataView')"
     >

@@ -1,6 +1,6 @@
 <template>
   <div :class="['plotly_editor', { with_controls: showViewSettings }]">
-    <GraphEditorControls v-show="showViewSettings">
+    <GraphEditorControls v-show="showViewSettings" :locale="'zh'" :dictionaries="chartDictionaries">
       <PanelMenuWrapper>
         <Panel group="Structure" name="Graph">
           <Fold name="Graph">
@@ -11,7 +11,7 @@
                 documentation</a
               >.
             </Field>
-            <Field ref="objectTypeField" label="Object type">
+            <Field ref="objectTypeField" label="对象类型">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.structure.objectType"
@@ -24,7 +24,7 @@
               </Field>
             </Field>
 
-            <Field label="Node Id">
+            <Field label="节点ID">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.structure.nodeId"
@@ -34,7 +34,7 @@
               <Field> A field keeping unique node identifier. </Field>
             </Field>
 
-            <Field label="Edge source">
+            <Field label="边源">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.structure.edgeSource"
@@ -46,7 +46,7 @@
               </Field>
             </Field>
 
-            <Field label="Edge target">
+            <Field label="边目标">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.structure.edgeTarget"
@@ -61,7 +61,7 @@
         </Panel>
         <Panel group="Style" name="General">
           <Fold name="General">
-            <Field label="Background color">
+            <Field label="背景颜色">
               <ColorPicker
                 :selectedColor="settings.style.backgroundColor"
                 @color-change="settings.style.backgroundColor = $event"
@@ -71,7 +71,7 @@
         </Panel>
         <Panel group="Style" name="Nodes">
           <Fold name="Nodes">
-            <Field label="Label">
+            <Field label="标签">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.style.nodes.label.source"
@@ -80,7 +80,7 @@
               />
             </Field>
 
-            <Field label="Label color">
+            <Field label="标签颜色">
               <ColorPicker
                 :selectedColor="settings.style.nodes.label.color"
                 @color-change="updateNodes('label.color', $event)"
@@ -103,7 +103,7 @@
         <Panel group="Style" name="Edges">
           <Fold name="Edges">
             <Field
-              label="Direction"
+              label="方向"
               fieldContainerClassName="test_edge_direction"
             >
               <RadioBlocks
@@ -113,7 +113,7 @@
               />
             </Field>
 
-            <Field label="Label">
+            <Field label="标签">
               <Dropdown
                 :options="keysOptions"
                 :value="settings.style.edges.label.source"
@@ -122,7 +122,7 @@
               />
             </Field>
 
-            <Field label="Label color">
+            <Field label="标签颜色">
               <ColorPicker
                 :selectedColor="settings.style.edges.label.color"
                 @color-change="updateEdges('label.color', $event)"
@@ -144,7 +144,7 @@
         </Panel>
         <Panel group="Style" name="Layout">
           <Fold name="Layout">
-            <Field label="Algorithm">
+            <Field label="算法">
               <Dropdown
                 :options="layoutOptions"
                 :value="settings.layout.type"
@@ -213,41 +213,41 @@
 </template>
 
 <script>
-import { markRaw } from 'vue'
-import { applyPureReactInVue } from 'veaury'
+import ForceAtlasLayoutSettings from '@/components/Graph/ForceAtlasLayoutSettings.vue'
+import RandomLayoutSettings from '@/components/Graph/RandomLayoutSettings.vue'
 import GraphEditorControls from '@/lib/GraphEditorControls.jsx'
-import { PanelMenuWrapper, Panel, Fold, Section } from 'react-chart-editor'
-import 'react-chart-editor/lib/react-chart-editor.css'
+import { Fold, Panel, PanelMenuWrapper, Section } from 'react-chart-editor'
+import Field from 'react-chart-editor/lib/components/fields/Field'
+import Button from 'react-chart-editor/lib/components/widgets/Button'
+import ColorPicker from 'react-chart-editor/lib/components/widgets/ColorPicker'
 import Dropdown from 'react-chart-editor/lib/components/widgets/Dropdown'
 import RadioBlocks from 'react-chart-editor/lib/components/widgets/RadioBlocks'
-import ColorPicker from 'react-chart-editor/lib/components/widgets/ColorPicker'
-import Button from 'react-chart-editor/lib/components/widgets/Button'
-import Field from 'react-chart-editor/lib/components/fields/Field'
-import RandomLayoutSettings from '@/components/Graph/RandomLayoutSettings.vue'
-import ForceAtlasLayoutSettings from '@/components/Graph/ForceAtlasLayoutSettings.vue'
+import 'react-chart-editor/lib/react-chart-editor.css'
+import { applyPureReactInVue } from 'veaury'
+import { markRaw } from 'vue'
 // eslint-disable-next-line max-len
 import AdvancedForceAtlasLayoutSettings from '@/components/Graph/AdvancedForceAtlasLayoutSettings.vue'
 import CirclePackLayoutSettings from '@/components/Graph/CirclePackLayoutSettings.vue'
-import FA2Layout from 'graphology-layout-forceatlas2/worker'
-import * as forceAtlas2 from 'graphology-layout-forceatlas2'
-import RunIcon from '@/components/svg/run.vue'
-import StopIcon from '@/components/svg/stop.vue'
-import { downloadAsPNG, drawOnCanvas } from '@sigma/export-image'
-import {
-  buildNodes,
-  buildEdges,
-  updateNodes,
-  updateEdges
-} from '@/lib/graphHelper'
-import Graph from 'graphology'
-import { circular, random, circlepack } from 'graphology-layout'
-import Sigma from 'sigma'
-import seedrandom from 'seedrandom'
+import EdgeColorSettings from '@/components/Graph/EdgeColorSettings.vue'
+import EdgeSizeSettings from '@/components/Graph/EdgeSizeSettings.vue'
 import NodeColorSettings from '@/components/Graph/NodeColorSettings.vue'
 import NodeSizeSettings from '@/components/Graph/NodeSizeSettings.vue'
-import EdgeSizeSettings from '@/components/Graph/EdgeSizeSettings.vue'
-import EdgeColorSettings from '@/components/Graph/EdgeColorSettings.vue'
+import RunIcon from '@/components/svg/run.vue'
+import StopIcon from '@/components/svg/stop.vue'
+import {
+    buildEdges,
+    buildNodes,
+    updateEdges,
+    updateNodes
+} from '@/lib/graphHelper'
 import events from '@/lib/utils/events'
+import { downloadAsPNG, drawOnCanvas } from '@sigma/export-image'
+import Graph from 'graphology'
+import { circlepack, circular, random } from 'graphology-layout'
+import * as forceAtlas2 from 'graphology-layout-forceatlas2'
+import FA2Layout from 'graphology-layout-forceatlas2/worker'
+import seedrandom from 'seedrandom'
+import Sigma from 'sigma'
 
 export default {
   components: {
@@ -285,15 +285,97 @@ export default {
       fa2Layout: null,
       fa2Running: false,
       checkIteration: null,
+      chartDictionaries: {
+        zh: {
+          'Trace your data.': '追踪您的数据。',
+          'Traces of various types like bar and line are the building blocks of your figure.': '各种类型的轨迹（如柱状图和折线图）是您图表的构建块。',
+          'You can add as many as you like, mixing and matching types and arranging them into subplots.': '您可以添加任意数量，混合匹配类型并将它们排列到子图中。',
+          'Click on the + button above to add a trace.': '点击上方的+按钮添加轨迹。',
+          'Trace': '轨迹',
+          'Traces': '轨迹',
+          'Add Trace': '添加轨迹',
+          'Choose Plot Type': '选择图表类型',
+          'Data': '数据',
+          'Layout': '布局',
+          'Style': '样式',
+          'Analyze': '分析',
+          'Export': '导出',
+          'Update': '更新',
+          'Run': '运行',
+          'Stop': '停止',
+          'Reset': '重置',
+          'Start': '开始',
+          'Show': '显示',
+          'Hide': '隐藏',
+          'Constant': '常量',
+          'Variable': '变量',
+          'Calculated': '计算',
+          'Direct': '直接',
+          'Map to': '映射到',
+          'Normal': '正常',
+          'Reversed': '反转',
+          'Continious': '连续',
+          'Categorical': '分类',
+          'Yes': '是',
+          'No': '否',
+          'Circular': '圆形',
+          'Random': '随机',
+          'Circle pack': '圆堆积',
+          'ForceAtlas2': '力导向图',
+          'Advanced layout settings': '高级布局设置',
+          'Reset': '重置',
+          'Min': '最小值',
+          'Max': '最大值',
+          'Scale': '缩放',
+          'Degree': '度数',
+          'In degree': '入度',
+          'Out degree': '出度',
+          'Color': '颜色',
+          'Color as': '颜色作为',
+          'Color scale': '颜色刻度',
+          'Color scale direction': '颜色刻度方向',
+          'Node': '节点',
+          'Nodes': '节点',
+          'Edge': '边',
+          'Edges': '边',
+          'Label': '标签',
+          'Label color': '标签颜色',
+          'Size': '大小',
+          'Background color': '背景颜色',
+          'Direction': '方向',
+          'Algorithm': '算法',
+          'Hierarchy attributes': '层级属性',
+          'Seed value': '种子值',
+          'Weight source': '权重源',
+          'Initial iterations amount': '初始迭代次数',
+          'Adjust sizes': '调整大小',
+          'Barnes Hut optimize': 'Barnes Hut优化',
+          'Barnes Hut theta': 'Barnes Hut theta',
+          'Edge weight influence': '边权重影响',
+          'Gravity': '重力',
+          'Lin Log mode': 'Lin Log模式',
+          'Outbound attraction distribution': '外向吸引力分布',
+          'Scaling ratio': '缩放比例',
+          'Slow down': '减速',
+          'Strong gravity mode': '强重力模式',
+          'Map your result set records to node and edge properties required to build a graph.': '将结果集记录映射到构建图所需的节点和边属性。',
+          'A field indicating if the record is node (value 0) or edge (value 1).': '指示记录是节点（值为0）还是边（值为1）的字段。',
+          'A field keeping unique node identifier.': '保存唯一节点标识符的字段。',
+          'A field keeping a node identifier where the edge starts.': '保存边开始节点标识符的字段。',
+          'A field keeping a node identifier where the edge ends.': '保存边结束节点标识符的字段。',
+          'No Results': '无结果',
+          'Select an Option': '选择一个选项'
+        }
+      },
       visibilityOptions: markRaw([
-        { label: 'Show', value: true },
-        { label: 'Hide', value: false }
+        { label: '显示', value: true },
+        { label: '隐藏', value: false }
       ]),
       layoutOptions: markRaw([
-        { label: 'Circular', value: 'circular' },
-        { label: 'Random', value: 'random' },
-        { label: 'Circle pack', value: 'circlepack' },
-        { label: 'ForceAtlas2', value: 'forceAtlas2' }
+        { label: '圆形', value: 'circular' },
+        { label: '随机', value: 'random' },
+        { label: '圆堆积', value: 'circlepack' },
+        { label: '力导向图', value: 'forceAtlas2' }
       ]),
       layoutSettingsComponentMap: markRaw({
         random: RandomLayoutSettings,

@@ -30,7 +30,7 @@
             "
           />
           <div v-show="!selectedCell" class="table-preview">
-            No cell selected to view
+            未选择要查看的单元格
           </div>
         </div>
       </template>
@@ -39,7 +39,7 @@
     <side-tool-bar panel="table" @switch-to="$emit('switchTo', $event)">
       <icon-button
         :disabled="!result"
-        tooltip="Export result set to CSV file"
+        tooltip="将结果集导出为CSV文件"
         tooltipPosition="top-left"
         @click="exportToCsv"
       >
@@ -49,7 +49,7 @@
       <icon-button
         ref="copyToClipboardBtn"
         :disabled="!result"
-        tooltip="Copy result set to clipboard"
+        tooltip="复制结果集到剪贴板"
         tooltipPosition="top-left"
         @click="prepareCopy"
       >
@@ -59,7 +59,7 @@
       <icon-button
         ref="rowBtn"
         :disabled="!result"
-        tooltip="View record"
+        tooltip="查看记录"
         tooltipPosition="top-left"
         :active="viewRecord"
         @click="toggleViewRecord"
@@ -70,21 +70,31 @@
       <icon-button
         ref="viewCellValueBtn"
         :disabled="!result"
-        tooltip="View value"
+        tooltip="查看值"
         tooltipPosition="top-left"
         :active="viewValuePanelVisible"
         @click="toggleViewValuePanel"
       >
         <view-cell-value-icon />
       </icon-button>
+
+      <icon-button
+        ref="shareBtn"
+        :disabled="!result"
+        tooltip="分享此结果"
+        tooltipPosition="top-left"
+        @click="shareQuery"
+      >
+        <share-icon />
+      </icon-button>
     </side-tool-bar>
 
     <loading-dialog
       v-model="showLoadingDialog"
-      loadingMsg="Building CSV..."
-      successMsg="CSV is ready"
-      actionBtnName="Copy"
-      title="Copy to clipboard"
+      loadingMsg="生成CSV中..."
+      successMsg="CSV已准备就绪"
+      actionBtnName="复制"
+      title="复制到剪贴板"
       :loading="preparingCopy"
       @action="copyToClipboard"
       @cancel="cancelCopy"
@@ -96,17 +106,17 @@
           v-show="result === null && !isGettingResults && !error"
           class="table-preview result-before"
         >
-          Run your query and get results here
+          运行您的查询以获取结果
         </div>
         <div v-if="isGettingResults" class="table-preview result-in-progress">
           <loading-indicator :size="30" />
-          Fetching results...
+          获取结果中...
         </div>
         <div
           v-show="result === undefined && !isGettingResults && !error"
           class="table-preview result-empty"
         >
-          No rows retrieved according to your query
+          根据您的查询未检索到任何行
         </div>
         <logs v-if="error" :messages="[error]" />
         <sql-table
@@ -135,24 +145,25 @@
 </template>
 
 <script>
-import Logs from '@/components/Common/Logs'
-import SqlTable from '@/components/SqlTable'
-import LoadingIndicator from '@/components/Common/LoadingIndicator'
-import SideToolBar from '@/components/SideToolBar'
-import Splitpanes from '@/components/Common/Splitpanes'
-import ExportToCsvIcon from '@/components/svg/exportToCsv'
-import ClipboardIcon from '@/components/svg/clipboard'
-import ViewCellValueIcon from '@/components/svg/viewCellValue'
-import RowIcon from '@/components/svg/row'
 import IconButton from '@/components/Common/IconButton'
-import csv from '@/lib/csv'
-import fIo from '@/lib/utils/fileIo'
-import cIo from '@/lib/utils/clipboardIo'
-import time from '@/lib/utils/time'
 import loadingDialog from '@/components/Common/LoadingDialog'
+import LoadingIndicator from '@/components/Common/LoadingIndicator'
+import Logs from '@/components/Common/Logs'
+import Splitpanes from '@/components/Common/Splitpanes'
+import SideToolBar from '@/components/SideToolBar'
+import SqlTable from '@/components/SqlTable'
+import ClipboardIcon from '@/components/svg/clipboard'
+import ExportToCsvIcon from '@/components/svg/exportToCsv'
+import RowIcon from '@/components/svg/row'
+import ShareIcon from '@/components/svg/share'
+import ViewCellValueIcon from '@/components/svg/viewCellValue'
+import csv from '@/lib/csv'
+import cIo from '@/lib/utils/clipboardIo'
 import events from '@/lib/utils/events'
-import ValueViewer from './ValueViewer'
+import fIo from '@/lib/utils/fileIo'
+import time from '@/lib/utils/time'
 import Record from './Record/index.vue'
+import ValueViewer from './ValueViewer'
 
 export default {
   name: 'RunResult',
@@ -166,6 +177,7 @@ export default {
     ClipboardIcon,
     ViewCellValueIcon,
     RowIcon,
+    ShareIcon,
     loadingDialog,
     ValueViewer,
     Record,
@@ -314,6 +326,38 @@ export default {
 
     onUpdateSelectedCell(e) {
       this.selectedCell = e
+    },
+
+    async shareQuery() {
+      try {
+        // Get current tab
+        const currentTabId = this.$store.state.currentTabId
+        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
+        
+        if (!currentTab) return
+        
+        // Generate shareable URL
+        let shareId
+        if (currentTab.isSaved && currentTab.inquiryId) {
+          // For saved queries, use the inquiry ID as hash
+          shareId = currentTab.inquiryId
+        } else {
+          // For unsaved queries, generate a random ID
+          shareId = crypto.randomUUID ? crypto.randomUUID().slice(0, 10) : Math.random().toString(36).substring(2, 12)
+        }
+        
+        // Create the URL - using window.location.origin to get the base URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
+        
+        // Copy to clipboard
+        await navigator.clipboard.writeText(shareUrl)
+        
+        // Show notification
+        alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
+      } catch (error) {
+        console.error('Error sharing query:', error)
+        alert('复制分享链接失败，请重试。')
+      }
     }
   }
 }

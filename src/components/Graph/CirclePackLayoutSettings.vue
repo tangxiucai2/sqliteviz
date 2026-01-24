@@ -1,6 +1,6 @@
 <template>
   <Field
-    label="Hierarchy attributes"
+    label="层级属性"
     fieldContainerClassName="multiselect-field"
   >
     <multiselect
@@ -28,7 +28,7 @@
     </multiselect>
   </Field>
 
-  <Field label="Seed value">
+  <Field label="种子值">
     <NumericInput
       :value="modelValue.seedValue"
       @update="update('seedValue', $event)"

@@ -1,5 +1,5 @@
 <template>
-  <Field label="Size" fieldContainerClassName="test_edge_size">
+  <Field label="大小" fieldContainerClassName="test_edge_size">
     <RadioBlocks
       :options="edgeSizeTypeOptions"
       :activeOption="modelValue.type"
@@ -23,14 +23,14 @@
   </Field>
 
   <template v-if="modelValue.type !== 'constant'">
-    <Field label="Size scale" fieldContainerClassName="test_edge_size_scale">
+    <Field label="大小缩放" fieldContainerClassName="test_edge_size_scale">
       <NumericInput
         :value="modelValue.scale"
         @update="updateSettings('scale', $event)"
       />
     </Field>
 
-    <Field label="Minimum size" fieldContainerClassName="test_edge_size_min">
+    <Field label="最小大小" fieldContainerClassName="test_edge_size_min">
       <NumericInput
         :value="modelValue.min"
         @update="updateSettings('min', $event)"

@@ -14,28 +14,38 @@
         ref="runBtn"
         :disabled="runDisabled"
         :loading="isGettingResults"
-        tooltip="Run SQL query"
+        tooltip="执行SQL查询"
         tooltipPosition="top-left"
         @click="$emit('run')"
       >
         <run-icon :disabled="runDisabled" />
+      </icon-button>
+      <icon-button
+        ref="shareBtn"
+        tooltip="分享此查询"
+        tooltipPosition="top-left"
+        @click="shareQuery"
+      >
+        <share-icon />
       </icon-button>
     </side-tool-bar>
   </div>
 </template>
 
 <script>
-import showHint, { showHintOnDemand } from './hint'
+import IconButton from '@/components/Common/IconButton'
+import RunIcon from '@/components/svg/run'
+import ShareIcon from '@/components/svg/share'
 import time from '@/lib/utils/time'
 import Codemirror from 'codemirror-editor-vue3'
+import 'codemirror/addon/display/autorefresh.js'
+import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/sql/sql.js'
 import 'codemirror/theme/neo.css'
-import 'codemirror/addon/hint/show-hint.css'
-import 'codemirror/addon/display/autorefresh.js'
+import { nanoid } from 'nanoid'
 import SideToolBar from '../SideToolBar'
-import IconButton from '@/components/Common/IconButton'
-import RunIcon from '@/components/svg/run'
+import showHint, { showHintOnDemand } from './hint'
 
 export default {
   name: 'SqlEditor',
@@ -43,7 +53,8 @@ export default {
     Codemirror,
     SideToolBar,
     IconButton,
-    RunIcon
+    RunIcon,
+    ShareIcon
   },
   props: { modelValue: String, isGettingResults: Boolean },
   emits: ['update:modelValue', 'run', 'switchTo'],
@@ -76,6 +87,37 @@ export default {
     onChange: time.debounce((value, editor) => showHint(editor), 400),
     focus() {
       this.$refs.cm.cminstance?.focus()
+    },
+    async shareQuery() {
+      try {
+        // Get current tab
+        const currentTabId = this.$store.state.currentTabId
+        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
+        
+        if (!currentTab) return
+        
+        // Generate shareable URL
+        let shareId
+        if (currentTab.isSaved && currentTab.inquiryId) {
+          // For saved queries, use the inquiry ID as hash
+          shareId = currentTab.inquiryId
+        } else {
+          // For unsaved queries, generate a random ID
+          shareId = nanoid(10)
+        }
+        
+        // Create the URL - using window.location.origin to get the base URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
+        
+        // Copy to clipboard
+        await navigator.clipboard.writeText(shareUrl)
+        
+        // Show notification (using existing event system or alert for simplicity)
+        alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
+      } catch (error) {
+        console.error('Error sharing query:', error)
+        alert('复制分享链接失败，请重试。')
+      }
     }
   }
 }

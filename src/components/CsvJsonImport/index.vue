@@ -14,7 +14,7 @@
       <text-field
         id="csv-json-table-name"
         v-model="tableName"
-        label="Table name"
+        label="表名"
         width="484px"
         :disabled="disableDialog"
         :errorMsg="tableNameError"
@@ -30,7 +30,7 @@
         <text-field
           id="quote-char"
           v-model="quoteChar"
-          label="Quote char"
+          label="引用字符"
           hint="The character used to quote fields."
           width="93px"
           :disabled="disableDialog"
@@ -40,7 +40,7 @@
         <text-field
           id="escape-char"
           v-model="escapeChar"
-          label="Escape char"
+          label="转义字符"
           hint='
             The character used to escape the quote character within a field
             (e.g. "column with ""quotes"" in text").
@@ -55,7 +55,7 @@
       <check-box
         v-if="!isJson && !isNdJson"
         :init="header"
-        label="Use first row as column headers"
+        label="使用第一行作为列标题"
         :disabled="disableDialog"
         @click="changeHeaderDisplaying"
       />

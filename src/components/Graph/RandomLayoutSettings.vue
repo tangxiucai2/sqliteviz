@@ -1,5 +1,5 @@
 <template>
-  <Field label="Seed value">
+  <Field label="种子值">
     <NumericInput
       :value="modelValue.seedValue"
       @update="update('seedValue', $event)"

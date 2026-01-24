@@ -19,7 +19,7 @@
       <icon-button
         ref="chartBtn"
         :active="mode === 'chart'"
-        tooltip="Switch to chart"
+        tooltip="切换到图表"
         tooltipPosition="top-left"
         @click="mode = 'chart'"
       >
@@ -28,7 +28,7 @@
       <icon-button
         ref="pivotBtn"
         :active="mode === 'pivot'"
-        tooltip="Switch to pivot"
+        tooltip="切换到透视表"
         tooltipPosition="top-left"
         @click="mode = 'pivot'"
       >
@@ -37,7 +37,7 @@
       <icon-button
         ref="graphBtn"
         :active="mode === 'graph'"
-        tooltip="Switch to graph"
+        tooltip="切换到图形"
         tooltipPosition="top-left"
         @click="mode = 'graph'"
       >
@@ -49,7 +49,7 @@
       <icon-button
         ref="settingsBtn"
         :active="showViewSettings"
-        tooltip="Toggle visualisation settings visibility"
+        tooltip="切换可视化设置可见性"
         tooltipPosition="top-left"
         @click="showViewSettings = !showViewSettings"
       >
@@ -62,7 +62,7 @@
         ref="pngExportBtn"
         :disabled="!exportToPngEnabled || loadingImage"
         :loading="loadingImage"
-        tooltip="Save as PNG image"
+        tooltip="保存为PNG图片"
         tooltipPosition="top-left"
         @click="saveAsPng"
       >
@@ -71,7 +71,7 @@
       <icon-button
         ref="svgExportBtn"
         :disabled="!exportToSvgEnabled"
-        tooltip="Save as SVG"
+        tooltip="保存为SVG"
         tooltipPosition="top-left"
         @click="saveAsSvg"
       >
@@ -81,7 +81,7 @@
       <icon-button
         ref="htmlExportBtn"
         :disabled="!exportToHtmlEnabled"
-        tooltip="Save as HTML"
+        tooltip="保存为HTML"
         tooltipPosition="top-left"
         @click="saveAsHtml"
       >
@@ -91,20 +91,28 @@
         ref="copyToClipboardBtn"
         :disabled="!exportToClipboardEnabled"
         :loading="copyingImage"
-        tooltip="Copy visualisation to clipboard"
+        tooltip="复制可视化到剪贴板"
         tooltipPosition="top-left"
         @click="prepareCopy"
       >
         <clipboard-icon />
       </icon-button>
+      <icon-button
+        ref="shareBtn"
+        tooltip="分享此可视化"
+        tooltipPosition="top-left"
+        @click="shareQuery"
+      >
+        <share-icon />
+      </icon-button>
     </side-tool-bar>
 
     <loading-dialog
       v-model="showLoadingDialog"
-      loadingMsg="Rendering the visualisation..."
-      successMsg="Image is ready"
-      actionBtnName="Copy"
-      title="Copy to clipboard"
+      loadingMsg="正在渲染可视化..."
+      successMsg="图片已准备就绪"
+      actionBtnName="复制"
+      title="复制到剪贴板"
       :loading="preparingCopy"
       @action="copyToClipboard"
       @cancel="cancelCopy"
@@ -114,22 +122,23 @@
 
 <script>
 import Chart from '@/components/Chart.vue'
-import Pivot from '@/components/Pivot'
-import Graph from '@/components/Graph/index.vue'
-import SideToolBar from '@/components/SideToolBar'
 import IconButton from '@/components/Common/IconButton'
-import ChartIcon from '@/components/svg/chart'
-import PivotIcon from '@/components/svg/pivot'
-import GraphIcon from '@/components/svg/graph.vue'
-import SettingsIcon from '@/components/svg/settings.vue'
-import HtmlIcon from '@/components/svg/html'
-import ExportToSvgIcon from '@/components/svg/exportToSvg'
-import PngIcon from '@/components/svg/png'
-import ClipboardIcon from '@/components/svg/clipboard'
-import cIo from '@/lib/utils/clipboardIo'
 import loadingDialog from '@/components/Common/LoadingDialog.vue'
-import time from '@/lib/utils/time'
+import Graph from '@/components/Graph/index.vue'
+import Pivot from '@/components/Pivot'
+import SideToolBar from '@/components/SideToolBar'
+import ChartIcon from '@/components/svg/chart'
+import ClipboardIcon from '@/components/svg/clipboard'
+import ExportToSvgIcon from '@/components/svg/exportToSvg'
+import GraphIcon from '@/components/svg/graph.vue'
+import HtmlIcon from '@/components/svg/html'
+import PivotIcon from '@/components/svg/pivot'
+import PngIcon from '@/components/svg/png'
+import SettingsIcon from '@/components/svg/settings.vue'
+import ShareIcon from '@/components/svg/share'
+import cIo from '@/lib/utils/clipboardIo'
 import events from '@/lib/utils/events'
+import time from '@/lib/utils/time'
 
 export default {
   name: 'DataView',
@@ -147,6 +156,7 @@ export default {
     PngIcon,
     HtmlIcon,
     ClipboardIcon,
+    ShareIcon,
     loadingDialog
   },
   props: {
@@ -228,9 +238,8 @@ export default {
         }
       } else {
         alert(
-          "Your browser doesn't support copying images into the clipboard. " +
-            'If you use Firefox you can enable it ' +
-            'by setting dom.events.asyncClipboard.clipboardItem to true.'
+          "您的浏览器不支持将图片复制到剪贴板。" +
+            '如果您使用Firefox，您可以通过将dom.events.asyncClipboard.clipboardItem设置为true来启用此功能。'
         )
       }
     },
@@ -267,6 +276,38 @@ export default {
         null,
         eventLabels
       )
+    },
+
+    async shareQuery() {
+      try {
+        // Get current tab
+        const currentTabId = this.$store.state.currentTabId
+        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
+        
+        if (!currentTab) return
+        
+        // Generate shareable URL
+        let shareId
+        if (currentTab.isSaved && currentTab.inquiryId) {
+          // For saved queries, use the inquiry ID as hash
+          shareId = currentTab.inquiryId
+        } else {
+          // For unsaved queries, generate a random ID
+          shareId = crypto.randomUUID ? crypto.randomUUID().slice(0, 10) : Math.random().toString(36).substring(2, 12)
+        }
+        
+        // Create the URL - using window.location.origin to get the base URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
+        
+        // Copy to clipboard
+        await navigator.clipboard.writeText(shareUrl)
+        
+        // Show notification
+        alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
+      } catch (error) {
+        console.error('Error sharing query:', error)
+        alert('复制分享链接失败，请重试。')
+      }
     }
   }
 }

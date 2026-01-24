@@ -1,5 +1,5 @@
 <template>
-  <Field label="Scaling ratio" fieldContainerClassName="test_fa2_scaling">
+  <Field label="缩放比例" fieldContainerClassName="test_fa2_scaling">
     <NumericInput
       :value="modelValue.scalingRatio"
       @update="update('scalingRatio', $event)"
@@ -7,7 +7,7 @@
   </Field>
 
   <Field
-    label="Prevent overlapping"
+    label="防止重叠"
     fieldContainerClassName="test_fa2_adjustSizes"
   >
     <RadioBlocks
@@ -18,7 +18,7 @@
   </Field>
 
   <Field
-    label="Barnes-Hut optimize"
+    label="Barnes-Hut优化"
     fieldContainerClassName="test_fa2_barnes_hut"
   >
     <RadioBlocks
@@ -30,7 +30,7 @@
 
   <Field
     v-show="modelValue.barnesHutOptimize"
-    label="Barnes-Hut Theta"
+    label="Barnes-Hut参数"
     fieldContainerClassName="test_fa2_barnes_theta"
   >
     <NumericInput
@@ -40,7 +40,7 @@
   </Field>
 
   <Field
-    label="Strong gravity mode"
+    label="强重力模式"
     fieldContainerClassName="test_fa2_strong_gravity"
   >
     <RadioBlocks
@@ -51,7 +51,7 @@
   </Field>
 
   <Field
-    label="Noack's LinLog model"
+    label="Noack LinLog模型"
     fieldContainerClassName="test_fa2_lin_log"
   >
     <RadioBlocks
@@ -62,7 +62,7 @@
   </Field>
 
   <Field
-    label="Outbound attraction distribution"
+    label="外向吸引力分布"
     fieldContainerClassName="test_fa2_outbound_attraction"
   >
     <RadioBlocks
@@ -72,7 +72,7 @@
     />
   </Field>
 
-  <Field label="Slow down" fieldContainerClassName="test_fa2_slow_down">
+  <Field label="减速系数" fieldContainerClassName="test_fa2_slow_down">
     <NumericInput
       :value="modelValue.slowDown"
       :min="0"
@@ -80,7 +80,7 @@
     />
   </Field>
 
-  <Field label="Edge weight">
+  <Field label="边权重">
     <Dropdown
       :options="keyOptions"
       :value="modelValue.weightSource"
@@ -90,7 +90,7 @@
   </Field>
   <Field
     v-show="modelValue.weightSource"
-    label="Edge weight influence"
+    label="边权重影响"
     fieldContainerClassName="test_fa2_weight_influence"
   >
     <NumericInput

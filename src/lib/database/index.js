@@ -1,133 +1,88 @@
-import fu from '@/lib/utils/fileIo'
-
-// Use promise-worker in order to turn worker into the promise based one:
-// https://github.com/nolanlawson/promise-worker
-import PromiseWorker from 'promise-worker'
-
+import config from '@/config'
 import events from '@/lib/utils/events'
 
 function getNewDatabase() {
-  const worker = new Worker(new URL('./_worker.js', import.meta.url), {
-    type: 'module'
-  })
-  return new Database(worker)
+  return new Database()
 }
 
 export default {
   getNewDatabase
 }
 
-let progressCounterIds = 0
 class Database {
-  constructor(worker) {
-    this.dbName = null
+  constructor() {
+    this.dbName = 'database'
     this.schema = null
-    this.worker = worker
-    this.pw = new PromiseWorker(worker)
-
-    this.importProgresses = {}
-    worker.addEventListener('message', e => {
-      const progress = e.data.progress
-      if (progress !== undefined) {
-        const id = e.data.id
-        this.importProgresses[id].dispatchEvent(
-          new CustomEvent('progress', {
-            detail: progress
-          })
-        )
-      }
-    })
   }
 
   shutDown() {
-    this.worker.terminate()
+    // No need to shut down anything with backend API
   }
 
   createProgressCounter(callback) {
-    const id = progressCounterIds++
-    this.importProgresses[id] = new EventTarget()
-    this.importProgresses[id].addEventListener('progress', e => {
-      callback(e.detail)
-    })
-    return id
+    // Not needed with backend API
+    return 0
   }
 
   deleteProgressCounter(id) {
-    delete this.importProgresses[id]
+    // Not needed with backend API
   }
 
   async addTableFromCsv(tabName, data, progressCounterId) {
-    const result = await this.pw.postMessage({
-      action: 'import',
-      data,
-      progressCounterId,
-      tabName
-    })
-
-    if (result.error) {
-      throw new Error(result.error)
-    }
-    this.dbName = this.dbName || 'database'
-    this.refreshSchema()
+    // Not implemented with backend API
+    throw new Error('CSV import is not supported with backend API')
   }
 
   async loadDb(file) {
-    const fileContent = file ? await fu.readAsArrayBuffer(file) : null
-    const res = await this.pw.postMessage({
-      action: 'open',
-      buffer: fileContent
-    })
-
-    if (res.error) {
-      throw new Error(res.error)
-    }
-
-    this.dbName = file ? fu.getFileName(file) : 'database'
-    await this.refreshSchema()
-
-    events.send('database.import', file ? file.size : 0, {
-      from: file ? 'sqlite' : 'none',
+    // Not needed with backend API
+    this.dbName = 'database'
+    // Don't load schema from database, it will be handled by backend
+    events.send('database.import', 0, {
+      from: 'api',
       new_db: true
     })
   }
 
   async refreshSchema() {
-    const getSchemaSql = `
-    WITH columns as (
-      SELECT
-        a.tbl_name,
-        json_group_array(
-          json_object('name', b.name,'type', IIF(b.type = '', 'N/A', b.type))
-        ) as column_json
-      FROM sqlite_master a, pragma_table_info(a.name) b
-      WHERE a.type in ('table','view') AND a.name NOT LIKE 'sqlite_%' group by tbl_name
-    )
-    SELECT json_group_array(json_object('name',tbl_name, 'columns', json(column_json))) objects
-    FROM columns;
-    `
-    const result = await this.execute(getSchemaSql)
-    this.schema = JSON.parse(result.values.objects[0])
+    // Schema refresh is not needed with backend API
+    // Backend will handle schema management
+    this.schema = []
   }
 
   async execute(commands) {
-    await this.pw.postMessage({ action: 'reopen' })
-    const results = await this.pw.postMessage({ action: 'exec', sql: commands })
+    try {
+      const { baseUrl, apiPrefix, endpoints } = config.backend
+      const apiUrl = `${baseUrl}${apiPrefix}/${endpoints.executeSql}`
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sql: commands,
+          params: []
+        })
+      })
 
-    if (results.error) {
-      throw new Error(results.error)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+
+      const responseData = await response.json()
+      // API returns { code: 200, msg: "success", data: [results] }
+      // if it was more than one select - take only the last one
+      const results = responseData.data || []
+      return results[results.length - 1]
+    } catch (error) {
+      throw new Error(error.message)
     }
-    // if it was more than one select - take only the last one
-    return results[results.length - 1]
   }
 
   async export(fileName) {
-    const data = await this.pw.postMessage({ action: 'export' })
-
-    if (data.error) {
-      throw new Error(data.error)
-    }
-    fu.exportToFile(data, fileName)
-    events.send('database.export', data.byteLength, { to: 'sqlite' })
+    // Not implemented with backend API
+    throw new Error('Export is not supported with backend API')
   }
 
   async validateTableName(name) {
@@ -145,7 +100,8 @@ class Database {
       throw new Error("Table name can't start with a digit")
     }
 
-    await this.execute(`BEGIN; CREATE TABLE "${name}"(id); ROLLBACK;`)
+    // Skip the actual validation with database, as we're using backend API
+    // and table creation is handled by backend
   }
 
   sanitizeTableName(tabName) {

@@ -1,8 +1,7 @@
 <template>
   <div class="pivot-container">
     <div v-show="!dataSources" class="warning pivot-warning">
-      There is no data to build a pivot. Run your SQL query and make sure the
-      result is not empty.
+      没有数据可以构建透视表。请运行您的SQL查询并确保结果不为空。
     </div>
     <pivot-ui
       v-show="showViewSettings"

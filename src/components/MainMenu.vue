@@ -4,9 +4,9 @@
       <a href="https://sqliteviz.com">
         <img src="~@/assets/images/logo_simple.svg" />
       </a>
-      <router-link to="/workspace">Workspace</router-link>
-      <router-link to="/inquiries">Inquiries</router-link>
-      <a href="https://sqliteviz.com/docs" target="_blank">Help</a>
+      <router-link to="/workspace">工作区</router-link>
+      <router-link to="/inquiries">查询</router-link>
+      <a href="https://sqliteviz.com/docs" target="_blank">帮助</a>
     </div>
     <div id="nav-buttons">
       <button
@@ -16,7 +16,7 @@
         :disabled="isSaved"
         @click="onSave(false)"
       >
-        Save
+        保存
       </button>
       <button
         v-show="currentInquiryTab && $route.path === '/workspace'"
@@ -24,10 +24,10 @@
         class="primary"
         @click="onSaveAs"
       >
-        Save as
+        另存为
       </button>
       <button id="create-btn" class="primary" @click="createNewInquiry">
-        Create
+        创建
       </button>
       <app-diagnostic-info />
     </div>
@@ -35,26 +35,25 @@
     <!--Save Inquiry dialog  -->
     <modal modalId="save" class="dialog" contentStyle="width: 560px;">
       <div class="dialog-header">
-        Save inquiry
+        保存查询
         <close-icon @click="cancelSave" />
       </div>
       <div class="dialog-body">
         <div v-show="isPredefined" id="save-note">
           <img src="~@/assets/images/info.svg" />
-          Note: Predefined inquiries can't be edited. That's why your
-          modifications will be saved as a new inquiry. Enter the name for it.
+          注意：预定义查询无法编辑。因此，您的修改将作为新查询保存。请输入查询名称。
         </div>
         <text-field
           v-model="name"
-          label="Inquiry name"
+          label="查询名称"
           :errorMsg="errorMsg"
           width="100%"
         />
       </div>
       <div class="dialog-buttons-container">
-        <button class="secondary" @click="cancelSave">Cancel</button>
+        <button class="secondary" @click="cancelSave">取消</button>
         <button class="primary" @click="validateSaveFormAndSaveInquiry">
-          Save
+          保存
         </button>
       </div>
     </modal>
@@ -66,21 +65,19 @@
       contentStyle="width: 560px;"
     >
       <div class="dialog-header">
-        Inquiry saving conflict
+        查询保存冲突
         <close-icon @click="cancelSave" />
       </div>
       <div class="dialog-body">
         <div id="save-note">
           <img src="~@/assets/images/info.svg" />
-          This inquiry has been modified in the mean time. This can happen if an
-          inquiry is saved in another window or browser tab. Do you want to
-          overwrite that changes or save the current state as a new inquiry?
+          该查询在您编辑期间已被修改。这可能是因为该查询在另一个窗口或浏览器标签页中被保存。您想覆盖这些更改还是将当前状态保存为新查询？
         </div>
       </div>
       <div class="dialog-buttons-container">
-        <button class="secondary" @click="cancelSave">Cancel</button>
-        <button class="primary" @click="onSave(true)">Overwrite</button>
-        <button class="primary" @click="onSaveAs">Save as new</button>
+        <button class="secondary" @click="cancelSave">取消</button>
+        <button class="primary" @click="onSave(true)">覆盖</button>
+        <button class="primary" @click="onSaveAs">保存为新查询</button>
       </div>
     </modal>
   </nav>
@@ -89,10 +86,10 @@
 <script>
 import TextField from '@/components/Common/TextField'
 import CloseIcon from '@/components/svg/close'
-import storedInquiries from '@/lib/storedInquiries'
-import AppDiagnosticInfo from './AppDiagnosticInfo'
-import events from '@/lib/utils/events'
 import eventBus from '@/lib/eventBus'
+import storedInquiries from '@/lib/storedInquiries'
+import events from '@/lib/utils/events'
+import AppDiagnosticInfo from './AppDiagnosticInfo'
 
 export default {
   name: 'MainMenu',

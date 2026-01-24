@@ -1,5 +1,5 @@
 <template>
-  <Field label="Color" fieldContainerClassName="test_node_color">
+  <Field label="颜色" fieldContainerClassName="test_node_color">
     <RadioBlocks
       :options="nodeColorTypeOptions"
       :activeOption="modelValue.type"
@@ -61,7 +61,7 @@
     v-if="
       modelValue.sourceUsage === 'map_to' || modelValue.type === 'calculated'
     "
-    label="Color as"
+    label="颜色作为"
     fieldContainerClassName="test_node_color_as"
   >
     <RadioBlocks
@@ -75,7 +75,7 @@
     v-if="
       modelValue.sourceUsage === 'map_to' || modelValue.type === 'calculated'
     "
-    label="Colorscale direction"
+    label="颜色刻度方向"
     fieldContainerClassName="test_node_color_colorscale_direction"
   >
     <RadioBlocks

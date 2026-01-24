@@ -1,17 +1,16 @@
 <template>
   <div ref="graphContainer" class="graph-container">
     <div v-show="!dataSources" class="warning data-view-warning no-data">
-      There is no data to build a graph. Run your SQL query and make sure the
-      result is not empty.
+      没有数据可以构建图形。请运行您的SQL查询并确保结果不为空。
     </div>
     <div
       v-show="!dataSourceIsValid"
       class="warning data-view-warning invalid-data"
     >
-      Result set is invalid for graph visualisation. Learn more in
+      结果集对图形可视化无效。在
       <a href="https://sqliteviz.com/docs/graph/" target="_blank">
-        documentation</a
-      >.
+        文档</a
+      >中了解更多信息。
     </div>
     <div
       class="graph"

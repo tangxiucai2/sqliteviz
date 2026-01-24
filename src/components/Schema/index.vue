@@ -1,7 +1,7 @@
 <template>
   <div id="schema-container">
     <div id="schema-filter">
-      <text-field v-model="filter" placeholder="Search table" width="100%" />
+      <text-field v-model="filter" placeholder="搜索表" width="100%" />
     </div>
     <div id="db">
       <div class="db-name" @click="schemaVisible = !schemaVisible">
@@ -9,7 +9,7 @@
         {{ dbName }}
       </div>
       <db-uploader id="db-edit" type="small" />
-      <export-icon tooltip="Export database" @click="exportToFile" />
+      <export-icon tooltip="导出数据库" @click="exportToFile" />
       <add-table-icon @click="addCsvJson" />
     </div>
     <div v-show="schemaVisible" class="schema">

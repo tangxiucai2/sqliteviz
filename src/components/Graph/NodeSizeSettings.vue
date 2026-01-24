@@ -1,5 +1,5 @@
 <template>
-  <Field label="Size" fieldContainerClassName="test_node_size">
+  <Field label="大小" fieldContainerClassName="test_node_size">
     <RadioBlocks
       :options="nodeSizeTypeOptions"
       :activeOption="modelValue.type"
@@ -31,14 +31,14 @@
   </Field>
 
   <template v-if="modelValue.type !== 'constant'">
-    <Field label="Size scale" fieldContainerClassName="test_node_size_scale">
+    <Field label="大小缩放" fieldContainerClassName="test_node_size_scale">
       <NumericInput
         :value="modelValue.scale"
         @update="updateSettings('scale', $event)"
       />
     </Field>
 
-    <Field label="Size mode" fieldContainerClassName="test_node_size_mode">
+    <Field label="大小模式" fieldContainerClassName="test_node_size_mode">
       <RadioBlocks
         :options="nodeSizeModeOptions"
         :activeOption="modelValue.mode"
@@ -46,7 +46,7 @@
       />
     </Field>
 
-    <Field label="Minimum size" fieldContainerClassName="test_node_size_min">
+    <Field label="最小大小" fieldContainerClassName="test_node_size_min">
       <NumericInput
         :value="modelValue.min"
         @update="updateSettings('min', $event)"
@@ -56,13 +56,13 @@
 </template>
 
 <script>
-import { markRaw } from 'vue'
-import { applyPureReactInVue } from 'veaury'
-import NumericInput from 'react-chart-editor/lib/components/widgets/NumericInput'
-import Dropdown from 'react-chart-editor/lib/components/widgets/Dropdown'
-import RadioBlocks from 'react-chart-editor/lib/components/widgets/RadioBlocks'
 import Field from 'react-chart-editor/lib/components/fields/Field'
+import Dropdown from 'react-chart-editor/lib/components/widgets/Dropdown'
+import NumericInput from 'react-chart-editor/lib/components/widgets/NumericInput'
+import RadioBlocks from 'react-chart-editor/lib/components/widgets/RadioBlocks'
 import 'react-chart-editor/lib/react-chart-editor.css'
+import { applyPureReactInVue } from 'veaury'
+import { markRaw } from 'vue'
 
 export default {
   components: {
