@@ -39,7 +39,7 @@
     </div>
     <div class="table-footer">
       <div class="table-footer-count">
-        {{ rowCount }} {{ rowCount === 1 ? 'row' : 'rows' }} retrieved
+        已检索到 {{ rowCount }} {{ rowCount === 1 ? '行' : '行' }} 数据
         <span v-if="time">in {{ time }}</span>
       </div>
 

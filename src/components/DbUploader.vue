@@ -10,8 +10,7 @@
         @click="browse"
       >
         <div class="text">
-          Drop the database, CSV, JSON or NDJSON file here or click to choose a
-          file from your computer.
+          拖放数据库、CSV、JSON或NDJSON文件到此处，或点击从您的电脑选择文件。
         </div>
       </div>
     </div>

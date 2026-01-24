@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid'
-import time from '@/lib/utils/time'
 import events from '@/lib/utils/events'
+import time from '@/lib/utils/time'
+import { nanoid } from 'nanoid'
 
 export default class Tab {
   constructor(state, inquiry = {}) {
@@ -11,7 +11,7 @@ export default class Tab {
       (state.untitledLastIndex
         ? `Untitled ${state.untitledLastIndex}`
         : 'Untitled')
-    this.query = inquiry.query
+    this.query = inquiry.query || '/* \n * 请输入SQL进行查询 \n */\n'
     this.viewOptions = inquiry.viewOptions || undefined
     this.isPredefined = inquiry.isPredefined
     this.viewType = inquiry.viewType || 'chart'

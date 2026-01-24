@@ -1,17 +1,17 @@
 <template>
   <div id="dbloader-container">
     <db-uploader type="illustrated" />
-    <div id="note">
+    <!-- <div id="note">
       Sqliteviz is fully client-side. Your database never leaves your computer.
     </div>
     <button id="skip" class="secondary" @click="$router.push('/workspace')">
       Create empty database
-    </button>
+    </button> -->
   </div>
 </template>
 
 <script>
-import DbUploader from '@/components/DbUploader'
+import DbUploader from '@/components/DbUploader';
 
 export default {
   name: 'Welcome',

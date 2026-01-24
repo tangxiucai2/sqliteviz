@@ -7,7 +7,7 @@
     :clickToClose="false"
   >
     <div class="dialog-header">
-      {{ typeName }} import
+      {{ typeName }} 导入
       <close-icon :disabled="disableDialog" @click="cancelImport" />
     </div>
     <div class="dialog-body">
@@ -31,7 +31,7 @@
           id="quote-char"
           v-model="quoteChar"
           label="引用字符"
-          hint="The character used to quote fields."
+          hint="用于引用字段的字符。"
           width="93px"
           :disabled="disableDialog"
           class="char-input"
@@ -42,8 +42,8 @@
           v-model="escapeChar"
           label="转义字符"
           hint='
-            The character used to escape the quote character within a field
-            (e.g. "column with ""quotes"" in text").
+            用于在字段内转义引号字符的字符
+            （例如 "包含""引号"" 的文本列"）。
           '
           maxHintWidth="242px"
           width="93px"
@@ -65,7 +65,7 @@
         :preview="true"
         class="preview-table"
       />
-      <div v-else class="no-data">No data</div>
+      <div v-else class="no-data">无数据</div>
       <logs class="import-errors" :messages="importMessages" />
     </div>
     <div class="dialog-buttons-container">
@@ -75,7 +75,7 @@
         :disabled="disableDialog"
         @click="cancelImport"
       >
-        Cancel
+        取消
       </button>
       <button
         v-show="!importCompleted"
@@ -84,7 +84,7 @@
         :disabled="disableDialog || disableImport"
         @click="loadToDb(file)"
       >
-        Import
+        导入
       </button>
       <button
         v-show="importCompleted"
@@ -93,23 +93,23 @@
         :disabled="disableDialog"
         @click="finish"
       >
-        Finish
+        完成
       </button>
     </div>
   </modal>
 </template>
 
 <script>
-import csv from '@/lib/csv'
-import CloseIcon from '@/components/svg/close'
-import TextField from '@/components/Common/TextField'
-import DelimiterSelector from './DelimiterSelector'
 import CheckBox from '@/components/Common/CheckBox'
-import SqlTable from '@/components/SqlTable'
 import Logs from '@/components/Common/Logs'
-import time from '@/lib/utils/time'
-import fIo from '@/lib/utils/fileIo'
+import TextField from '@/components/Common/TextField'
+import SqlTable from '@/components/SqlTable'
+import CloseIcon from '@/components/svg/close'
+import csv from '@/lib/csv'
 import events from '@/lib/utils/events'
+import fIo from '@/lib/utils/fileIo'
+import time from '@/lib/utils/time'
+import DelimiterSelector from './DelimiterSelector'
 
 export default {
   name: 'CsvJsonImport',
@@ -173,7 +173,7 @@ export default {
         return
       }
       this.db.validateTableName(this.tableName).catch(err => {
-        this.tableNameError = err.message + '. Try another table name.'
+        this.tableNameError = err.message + '。请尝试其他表名。'
       })
     }, 400)
   },
@@ -241,13 +241,13 @@ export default {
           this.disableImport = true
           this.importMessages.push({
             type: 'info',
-            message: 'No rows to import.'
+            message: '没有要导入的行。'
           })
         }
 
         if (!parseResult.hasErrors) {
           this.importMessages.push({
-            message: `Preview parsing is completed in ${time.getPeriod(start, end)}.`,
+            message: `预览解析已在 ${time.getPeriod(start, end)} 内完成。`,
             type: 'success'
           })
         }
@@ -276,7 +276,7 @@ export default {
     },
     async loadToDb(file) {
       if (!this.tableName) {
-        this.tableNameError = "Table name can't be empty"
+        this.tableNameError = "表名不能为空"
         return
       }
 
@@ -290,7 +290,7 @@ export default {
       }
       let parsingMsg = {}
       this.importMessages.push({
-        message: `Parsing ${this.typeName}...`,
+        message: `正在解析 ${this.typeName}...`,
         type: 'info'
       })
       // Get *reactive* link to parsing message for later updates
@@ -324,10 +324,10 @@ export default {
             this.importMessages = this.importMessages.concat(
               parseResult.messages
             )
-            parsingMsg.message = `${rowCount} rows are parsed in ${period}.`
+            parsingMsg.message = `${rowCount} 行已在 ${period} 内解析。`
           } else {
             // Inform about parsing success
-            parsingMsg.message = `${rowCount} rows are parsed successfully in ${period}.`
+            parsingMsg.message = `${rowCount} 行已在 ${period} 内成功解析。`
           }
 
           // Loading indicator for parsing is not needed anymore
@@ -335,7 +335,7 @@ export default {
 
           // Add info about import start
           this.importMessages.push({
-            message: `Importing ${this.typeName} into a SQLite database...`,
+            message: `正在将 ${this.typeName} 导入数据库...`,
             type: 'info'
           })
           importMsg = this.importMessages[this.importMessages.length - 1]
@@ -358,8 +358,7 @@ export default {
           // Inform about import success
           period = time.getPeriod(start, end)
           importMsg.message =
-            `Importing ${this.typeName} ` +
-            `into a SQLite database is completed in ${period}.`
+            `将 ${this.typeName} 导入 SQLite 数据库已在 ${period} 内完成。`
           importMsg.type = 'success'
 
           // Loading indicator for import is not needed anymore
@@ -367,7 +366,7 @@ export default {
 
           this.importCompleted = true
         } else {
-          parsingMsg.message = 'Parsing ended with errors.'
+          parsingMsg.message = '解析结束，存在错误。'
           parsingMsg.type = 'info'
           this.importMessages = this.importMessages.concat(parseResult.messages)
         }
@@ -408,8 +407,8 @@ export default {
           ? this.getJsonQueryExample()
           : [
               '/*',
-              ` * Your CSV file has been imported into ${this.addedTable} table.`,
-              ' * You can run this SQL query to make all CSV records available for charting.',
+              ` * 您的 CSV 文件已导入到 ${this.addedTable} 表中。`,
+              ' * 您可以运行此 SQL 查询，使所有 CSV 记录可用于图表绘制。',
               ' */',
               `SELECT * FROM "${this.addedTable}"`
             ].join('\n')
@@ -420,9 +419,9 @@ export default {
         const firstKey = Object.keys(firstRowJson)[0]
         return [
           '/*',
-          ` * Your NDJSON file has been imported into ${this.addedTable} table.`,
-          ` * Run this SQL query to get values of property ${firstKey} ` +
-            'and make them available for charting.',
+          ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
+              ` * 运行此 SQL 查询以获取属性 ${firstKey} 的值，` +
+                '并使它们可用于图表绘制。',
           ' */',
           `SELECT doc->>'${firstKey}'`,
           `FROM "${this.addedTable}"`
@@ -431,7 +430,7 @@ export default {
         console.error(err)
         return [
           '/*',
-          ` * Your NDJSON file has been imported into ${this.addedTable} table.`,
+          ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
           ' */',
           'SELECT *',
           `FROM "${this.addedTable}"`
@@ -444,9 +443,9 @@ export default {
         const firstKey = Object.keys(firstRowJson)[0]
         return [
           '/*',
-          ` * Your JSON file has been imported into ${this.addedTable} table.`,
-          ` * Run this SQL query to get values of property ${firstKey} ` +
-            'and make them available for charting.',
+          ` * 您的 JSON 文件已导入到 ${this.addedTable} 表中。`,
+          ` * 运行此 SQL 查询以获取属性 ${firstKey} 的值，` +
+            '并使它们可用于图表绘制。',
           ' */',
           'SELECT *',
           `FROM "${this.addedTable}"`,
@@ -456,10 +455,10 @@ export default {
         console.error(err)
         return [
           '/*',
-          ` * Your NDJSON file has been imported into ${this.addedTable} table.`,
-          ' */',
-          'SELECT *',
-          `FROM "${this.addedTable}"`
+            ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
+            ' */',
+            'SELECT *',
+            `FROM "${this.addedTable}"`
         ].join('\n')
       }
     }

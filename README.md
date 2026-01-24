@@ -1,6 +1,3 @@
-<p align="center">
-   <img src="src/assets/images/Logo.svg"/>
-</p>
 
 # sqliteviz
 

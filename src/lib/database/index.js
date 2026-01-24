@@ -30,7 +30,7 @@ class Database {
 
   async addTableFromCsv(tabName, data, progressCounterId) {
     // Not implemented with backend API
-    throw new Error('CSV import is not supported with backend API')
+    throw new Error('后端API不支持导入')
   }
 
   async loadDb(file) {
@@ -82,22 +82,22 @@ class Database {
 
   async export(fileName) {
     // Not implemented with backend API
-    throw new Error('Export is not supported with backend API')
+    throw new Error('后端API不支持导出')
   }
 
   async validateTableName(name) {
     if (name.startsWith('sqlite_')) {
-      throw new Error("Table name can't start with sqlite_")
+      throw new Error("表名不能以 sqlite_ 开头")
     }
 
     if (/[^\w]/.test(name)) {
       throw new Error(
-        'Table name can contain only letters, digits and underscores'
+        '表名只能包含字母、数字和下划线'
       )
     }
 
     if (/^(\d)/.test(name)) {
-      throw new Error("Table name can't start with a digit")
+      throw new Error("表名不能以数字开头")
     }
 
     // Skip the actual validation with database, as we're using backend API

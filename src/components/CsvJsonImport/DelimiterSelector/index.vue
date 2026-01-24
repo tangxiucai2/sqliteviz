@@ -1,6 +1,6 @@
 <template>
   <div :class="{ disabled: disabled }">
-    <div class="text-field-label">Delimiter</div>
+    <div class="text-field-label">分隔符</div>
     <div
       class="delimiter-selector-container"
       :style="{ width: width }"
