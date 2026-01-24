@@ -71,6 +71,14 @@ class Database {
       }
 
       const responseData = await response.json()
+      
+      // Check if API returned an error code
+      if (responseData.code !== 200) {
+        // Handle specific error codes
+        const errorMsg = responseData.msg || '未知错误'
+        throw new Error(errorMsg)
+      }
+      
       // API returns { code: 200, msg: "success", data: [results] }
       // if it was more than one select - take only the last one
       const results = responseData.data || []

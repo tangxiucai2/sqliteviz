@@ -3,6 +3,8 @@ import App from '@/App.vue'
 import router from '@/router'
 import store from '@/store'
 import { createVfm, VueFinalModal, useVfm } from 'vue-final-modal'
+// Suppress React warnings from external libraries
+import '@/lib/reactWarningFilter'
 
 import '@/assets/styles/variables.css'
 import '@/assets/styles/typography.css'

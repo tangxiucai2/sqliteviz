@@ -1,5 +1,9 @@
 <template>
   <div class="side-tool-bar">
+    <slot />
+
+    <div v-if="$slots.default" class="side-tool-bar-divider" />
+
     <icon-button
       ref="sqlEditorBtn"
       :active="panel === 'sqlEditor'"
@@ -29,18 +33,14 @@
     >
       <data-view-icon />
     </icon-button>
-
-    <div v-if="$slots.default" class="side-tool-bar-divider" />
-
-    <slot />
   </div>
 </template>
 
 <script>
-import IconButton from '@/components/Common/IconButton'
-import TableIcon from '@/components/svg/table'
-import SqlEditorIcon from '@/components/svg/sqlEditor'
-import DataViewIcon from '@/components/svg/dataView'
+import IconButton from '@/components/Common/IconButton';
+import DataViewIcon from '@/components/svg/dataView';
+import SqlEditorIcon from '@/components/svg/sqlEditor';
+import TableIcon from '@/components/svg/table';
 
 export default {
   name: 'SideToolBar',
