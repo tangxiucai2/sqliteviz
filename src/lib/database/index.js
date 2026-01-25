@@ -68,7 +68,7 @@ class Database {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+          errorData.error || `接口服务异常! 状态: ${response.status}`
         )
       }
 
