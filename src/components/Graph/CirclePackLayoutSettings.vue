@@ -14,13 +14,13 @@
       @update:model-value="update('hierarchyAttributes', $event)"
     >
       <template #maxElements>
-        <span class="no-results">No Results</span>
+        <span class="no-results">无结果</span>
       </template>
 
-      <template #placeholder>Select an Option</template>
+      <template #placeholder>选择一个选项</template>
 
       <template #noResult>
-        <span class="no-results">No Results</span>
+        <span class="no-results">无结果</span>
       </template>
     </multiselect>
   </Field>
@@ -34,11 +34,11 @@
 </template>
 
 <script>
-import { applyPureReactInVue } from 'veaury'
 import Field from 'react-chart-editor/lib/components/fields/Field'
 import NumericInput from 'react-chart-editor/lib/components/widgets/NumericInput'
-import Multiselect from 'vue-multiselect'
 import 'react-chart-editor/lib/react-chart-editor.css'
+import { applyPureReactInVue } from 'veaury'
+import Multiselect from 'vue-multiselect'
 
 export default {
   components: {

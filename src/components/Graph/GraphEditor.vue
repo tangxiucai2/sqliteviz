@@ -9,11 +9,10 @@
         <Panel group="Structure" name="Graph">
           <Fold name="Graph">
             <Field>
-              Map your result set records to node and edge properties required
-              to build a graph. Learn more about result set requirements in the
+              将结果集记录映射到构建图所需的节点和边属性。在
               <a href="https://sqliteviz.com/docs/graph/" target="_blank">
-                documentation</a
-              >.
+                文档</a
+              >中了解更多关于结果集要求的信息。
             </Field>
             <Field ref="objectTypeField" label="对象类型">
               <Dropdown

@@ -1,6 +1,6 @@
 <template>
   <div :class="['pivot-sort-btn', direction]" @click="changeSorting">
-    {{ modelValue.includes('key') ? 'key' : 'value' }}
+    {{ modelValue.includes('key') ? '键' : '值' }}
     <sort-icon
       class="sort-icon"
       :horizontal="direction === 'col'"
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import SortIcon from '@/components/svg/sort'
+import SortIcon from '@/components/svg/sort';
 
 export default {
   name: 'PivotSortBtn',
