@@ -103,7 +103,7 @@ input.error {
   font-size: 12px;
   padding-left: 8px;
   margin-top: 2px;
-  position: absolute;
+  margin-bottom: 8px; /* 添加底部间距，避免与后续元素重叠 */
 }
 .text-field-error:first-letter {
   text-transform: uppercase;

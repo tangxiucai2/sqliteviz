@@ -28,12 +28,21 @@
       >
         <share-icon />
       </icon-button>
+      <icon-button
+        ref="exportBtn"
+        tooltip="导出报表模板"
+        tooltipPosition="top-left"
+        @click="exportReportTemplate"
+      >
+        <export-icon />
+      </icon-button>
     </side-tool-bar>
   </div>
 </template>
 
 <script>
 import IconButton from '@/components/Common/IconButton'
+import ExportIcon from '@/components/svg/export'
 import RunIcon from '@/components/svg/run'
 import ShareIcon from '@/components/svg/share'
 import eventBus from '@/lib/eventBus'
@@ -57,7 +66,8 @@ export default {
     SideToolBar,
     IconButton,
     RunIcon,
-    ShareIcon
+    ShareIcon,
+    ExportIcon
   },
   props: { modelValue: String, isGettingResults: Boolean },
   emits: ['update:modelValue', 'run', 'switchTo'],
@@ -229,6 +239,33 @@ export default {
       this.$modal.hide('save')
       this.$modal.hide('inquiry-conflict')
       eventBus.$off('inquirySaved')
+    },
+    exportReportTemplate() {
+      try {
+        // Get current tab
+        const currentTabId = this.$store.state.currentTabId
+        const currentTab = this.$store.state.tabs.find(
+          tab => tab.id === currentTabId
+        )
+
+        if (!currentTab) return
+
+        // Create an inquiry object from the current tab
+        const inquiry = {
+          id: currentTab.id || nanoid(10),
+          name: currentTab.name || '未命名查询',
+          query: currentTab.query,
+          viewType: currentTab.viewType || 'table',
+          viewOptions: currentTab.viewOptions || {},
+          updatedAt: currentTab.updatedAt || new Date().toISOString()
+        }
+
+        // Export the inquiry as a report template
+        storedInquiries.export([inquiry], `${inquiry.name}_报表模板.json`)
+      } catch (error) {
+        console.error('Error exporting report template:', error)
+        alert('导出报表模板失败，请重试。')
+      }
     }
   }
 }

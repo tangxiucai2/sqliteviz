@@ -8,5 +8,6 @@ export default {
   loadingPredefinedInquiries: false,
   predefinedInquiriesLoaded: false,
   db: null,
-  isWorkspaceVisible: false
+  isWorkspaceVisible: false,
+  dashboards: []
 }

@@ -11,6 +11,9 @@ export default {
   computed: {
     inquiries() {
       return this.$store.state.inquiries
+    },
+    dashboards() {
+      return this.$store.state.dashboards
     }
   },
   watch: {
@@ -19,13 +22,37 @@ export default {
       handler() {
         storedInquiries.updateStorage(this.inquiries)
       }
+    },
+    dashboards: {
+      deep: true,
+      handler() {
+        localStorage.setItem('sqliteviz_dashboards', JSON.stringify(this.dashboards))
+      }
     }
   },
   created() {
     this.$store.commit('setInquiries', storedInquiries.getStoredInquiries())
+    
+    // 加载存储的仪表板数据
+    const storedDashboards = localStorage.getItem('sqliteviz_dashboards')
+    if (storedDashboards) {
+      try {
+        this.$store.commit('setDashboards', JSON.parse(storedDashboards))
+      } catch (e) {
+        console.error('Failed to parse stored dashboards:', e)
+      }
+    }
+    
     addEventListener('storage', event => {
       if (event.key === storedInquiries.myInquiriesKey) {
         this.$store.commit('setInquiries', storedInquiries.getStoredInquiries())
+      }
+      if (event.key === 'sqliteviz_dashboards') {
+        try {
+          this.$store.commit('setDashboards', JSON.parse(event.newValue || '[]'))
+        } catch (e) {
+          console.error('Failed to parse stored dashboards from storage event:', e)
+        }
       }
     })
   }

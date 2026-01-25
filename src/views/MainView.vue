@@ -2,7 +2,7 @@
   <div>
     <main-menu />
     <router-view id="main-view" v-slot="{ Component }">
-      <keep-alive include="Workspace,Inquiries">
+      <keep-alive include="Workspace,Inquiries,Dashboard">
         <component :is="Component" />
       </keep-alive>
     </router-view>

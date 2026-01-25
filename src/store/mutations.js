@@ -84,5 +84,9 @@ export default {
   },
   setIsWorkspaceVisible(state, value) {
     state.isWorkspaceVisible = value
+  },
+  
+  setDashboards(state, value) {
+    state.dashboards = Array.isArray(value) ? value : []
   }
 }

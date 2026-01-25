@@ -6,6 +6,7 @@
       </a>
       <router-link to="/workspace">工作区</router-link>
       <router-link to="/inquiries">查询</router-link>
+      <router-link to="/dashboard">仪表板</router-link>
       <a href="https://sqliteviz.com/docs" target="_blank">帮助</a>
     </div>
     <div id="nav-buttons">

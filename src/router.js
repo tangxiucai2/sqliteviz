@@ -1,5 +1,6 @@
 import database from '@/lib/database'
 import store from '@/store'
+import Dashboard from '@/views/Dashboard'
 import Inquiries from '@/views/Inquiries'
 import LoadView from '@/views/LoadView'
 import MainView from '@/views/MainView'
@@ -36,6 +37,12 @@ export const routes = [
         path: '/inquiries',
         name: 'Inquiries',
         component: Inquiries
+      },
+      // 仪表板：对应仪表板功能
+      {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: Dashboard
       },
       // 数据报表管理的另一个入口，方便外部应用直接访问
       {
