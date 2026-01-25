@@ -1,4 +1,3 @@
-
 # sqliteviz
 
 Sqliteviz is a single-page offline-first PWA for fully client-side visualisation

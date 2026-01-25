@@ -2,7 +2,7 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { VitePWA } from 'vite-plugin-pwa'
+
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // https://vitejs.dev/config/
@@ -21,18 +21,6 @@ export default defineConfig({
           dest: './'
         }
       ]
-    }),
-    VitePWA({
-      filename: 'service-worker.js',
-      manifest: false,
-      injectRegister: false,
-      workbox: {
-        globPatterns: ['**\/*.{js,wasm,css,html,woff2,png}'],
-        globIgnores: ['*.map', 'LICENSE', 'inquiries.json'],
-        clientsClaim: true,
-        skipWaiting: false,
-        maximumFileSizeToCacheInBytes: 40000000
-      }
     })
   ],
   resolve: {
