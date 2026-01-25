@@ -220,6 +220,9 @@ export default {
       this.exportSignal('png')
     },
     getOptionsForSave() {
+      if (!this.$refs.viewComponent) {
+        return null
+      }
       return this.$refs.viewComponent.getOptionsForSave()
     },
     async prepareCopy() {
@@ -238,7 +241,7 @@ export default {
         }
       } else {
         alert(
-          "您的浏览器不支持将图片复制到剪贴板。" +
+          '您的浏览器不支持将图片复制到剪贴板。' +
             '如果您使用Firefox，您可以通过将dom.events.asyncClipboard.clipboardItem设置为true来启用此功能。'
         )
       }
@@ -282,10 +285,12 @@ export default {
       try {
         // Get current tab
         const currentTabId = this.$store.state.currentTabId
-        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
-        
+        const currentTab = this.$store.state.tabs.find(
+          tab => tab.id === currentTabId
+        )
+
         if (!currentTab) return
-        
+
         // Generate shareable URL
         let shareId
         if (currentTab.isSaved && currentTab.inquiryId) {
@@ -293,15 +298,17 @@ export default {
           shareId = currentTab.inquiryId
         } else {
           // For unsaved queries, generate a random ID
-          shareId = crypto.randomUUID ? crypto.randomUUID().slice(0, 10) : Math.random().toString(36).substring(2, 12)
+          shareId = crypto.randomUUID
+            ? crypto.randomUUID().slice(0, 10)
+            : Math.random().toString(36).substring(2, 12)
         }
-        
+
         // Create the URL - using window.location.origin to get the base URL
         const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
-        
+
         // Copy to clipboard
         await navigator.clipboard.writeText(shareUrl)
-        
+
         // Show notification
         alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
       } catch (error) {

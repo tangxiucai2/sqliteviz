@@ -131,15 +131,15 @@
 </template>
 
 <script>
-import $ from 'jquery';
-import Multiselect from 'vue-multiselect';
+import $ from 'jquery'
+import Multiselect from 'vue-multiselect'
 import {
   aggregators,
   renderers,
   twoValAggregators,
   zeroValAggregators
-} from '../pivotHelper';
-import PivotSortBtn from './PivotSortBtn';
+} from '../pivotHelper'
+import PivotSortBtn from './PivotSortBtn'
 
 export default {
   name: 'PivotUi',

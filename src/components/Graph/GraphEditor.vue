@@ -1,6 +1,10 @@
 <template>
   <div :class="['plotly_editor', { with_controls: showViewSettings }]">
-    <GraphEditorControls v-show="showViewSettings" :locale="'zh'" :dictionaries="chartDictionaries">
+    <GraphEditorControls
+      v-show="showViewSettings"
+      :locale="'zh'"
+      :dictionaries="chartDictionaries"
+    >
       <PanelMenuWrapper>
         <Panel group="Structure" name="Graph">
           <Fold name="Graph">
@@ -102,10 +106,7 @@
 
         <Panel group="Style" name="Edges">
           <Fold name="Edges">
-            <Field
-              label="方向"
-              fieldContainerClassName="test_edge_direction"
-            >
+            <Field label="方向" fieldContainerClassName="test_edge_direction">
               <RadioBlocks
                 :options="visibilityOptions"
                 :activeOption="settings.style.edges.showDirection"
@@ -235,10 +236,10 @@ import NodeSizeSettings from '@/components/Graph/NodeSizeSettings.vue'
 import RunIcon from '@/components/svg/run.vue'
 import StopIcon from '@/components/svg/stop.vue'
 import {
-    buildEdges,
-    buildNodes,
-    updateEdges,
-    updateNodes
+  buildEdges,
+  buildNodes,
+  updateEdges,
+  updateNodes
 } from '@/lib/graphHelper'
 import events from '@/lib/utils/events'
 import { downloadAsPNG, drawOnCanvas } from '@sigma/export-image'
@@ -288,62 +289,65 @@ export default {
       chartDictionaries: {
         zh: {
           'Trace your data.': '追踪您的数据。',
-          'Traces of various types like bar and line are the building blocks of your figure.': '各种类型的轨迹（如柱状图和折线图）是您图表的构建块。',
-          'You can add as many as you like, mixing and matching types and arranging them into subplots.': '您可以添加任意数量，混合匹配类型并将它们排列到子图中。',
-          'Click on the + button above to add a trace.': '点击上方的+按钮添加轨迹。',
-          'Trace': '轨迹',
-          'Traces': '轨迹',
+          'Traces of various types like bar and line are the building blocks of your figure.':
+            '各种类型的轨迹（如柱状图和折线图）是您图表的构建块。',
+          'You can add as many as you like, mixing and matching types and arranging them into subplots.':
+            '您可以添加任意数量，混合匹配类型并将它们排列到子图中。',
+          'Click on the + button above to add a trace.':
+            '点击上方的+按钮添加轨迹。',
+          Trace: '轨迹',
+          Traces: '轨迹',
           'Add Trace': '添加轨迹',
           'Choose Plot Type': '选择图表类型',
-          'Data': '数据',
-          'Layout': '布局',
-          'Style': '样式',
-          'Analyze': '分析',
-          'Export': '导出',
-          'Update': '更新',
-          'Run': '运行',
-          'Stop': '停止',
-          'Reset': '重置',
-          'Start': '开始',
-          'Show': '显示',
-          'Hide': '隐藏',
-          'Constant': '常量',
-          'Variable': '变量',
-          'Calculated': '计算',
-          'Direct': '直接',
+          Data: '数据',
+          Layout: '布局',
+          Style: '样式',
+          Analyze: '分析',
+          Export: '导出',
+          Update: '更新',
+          Run: '运行',
+          Stop: '停止',
+          Reset: '重置',
+          Start: '开始',
+          Show: '显示',
+          Hide: '隐藏',
+          Constant: '常量',
+          Variable: '变量',
+          Calculated: '计算',
+          Direct: '直接',
           'Map to': '映射到',
-          'Normal': '正常',
-          'Reversed': '反转',
-          'Continious': '连续',
-          'Categorical': '分类',
-          'Yes': '是',
-          'No': '否',
-          'Circular': '圆形',
-          'Random': '随机',
+          Normal: '正常',
+          Reversed: '反转',
+          Continious: '连续',
+          Categorical: '分类',
+          Yes: '是',
+          No: '否',
+          Circular: '圆形',
+          Random: '随机',
           'Circle pack': '圆堆积',
-          'ForceAtlas2': '力导向图',
+          ForceAtlas2: '力导向图',
           'Advanced layout settings': '高级布局设置',
-          'Reset': '重置',
-          'Min': '最小值',
-          'Max': '最大值',
-          'Scale': '缩放',
-          'Degree': '度数',
+          Reset: '重置',
+          Min: '最小值',
+          Max: '最大值',
+          Scale: '缩放',
+          Degree: '度数',
           'In degree': '入度',
           'Out degree': '出度',
-          'Color': '颜色',
+          Color: '颜色',
           'Color as': '颜色作为',
           'Color scale': '颜色刻度',
           'Color scale direction': '颜色刻度方向',
-          'Node': '节点',
-          'Nodes': '节点',
-          'Edge': '边',
-          'Edges': '边',
-          'Label': '标签',
+          Node: '节点',
+          Nodes: '节点',
+          Edge: '边',
+          Edges: '边',
+          Label: '标签',
           'Label color': '标签颜色',
-          'Size': '大小',
+          Size: '大小',
           'Background color': '背景颜色',
-          'Direction': '方向',
-          'Algorithm': '算法',
+          Direction: '方向',
+          Algorithm: '算法',
           'Hierarchy attributes': '层级属性',
           'Seed value': '种子值',
           'Weight source': '权重源',
@@ -352,17 +356,22 @@ export default {
           'Barnes Hut optimize': 'Barnes Hut优化',
           'Barnes Hut theta': 'Barnes Hut theta',
           'Edge weight influence': '边权重影响',
-          'Gravity': '重力',
+          Gravity: '重力',
           'Lin Log mode': 'Lin Log模式',
           'Outbound attraction distribution': '外向吸引力分布',
           'Scaling ratio': '缩放比例',
           'Slow down': '减速',
           'Strong gravity mode': '强重力模式',
-          'Map your result set records to node and edge properties required to build a graph.': '将结果集记录映射到构建图所需的节点和边属性。',
-          'A field indicating if the record is node (value 0) or edge (value 1).': '指示记录是节点（值为0）还是边（值为1）的字段。',
-          'A field keeping unique node identifier.': '保存唯一节点标识符的字段。',
-          'A field keeping a node identifier where the edge starts.': '保存边开始节点标识符的字段。',
-          'A field keeping a node identifier where the edge ends.': '保存边结束节点标识符的字段。',
+          'Map your result set records to node and edge properties required to build a graph.':
+            '将结果集记录映射到构建图所需的节点和边属性。',
+          'A field indicating if the record is node (value 0) or edge (value 1).':
+            '指示记录是节点（值为0）还是边（值为1）的字段。',
+          'A field keeping unique node identifier.':
+            '保存唯一节点标识符的字段。',
+          'A field keeping a node identifier where the edge starts.':
+            '保存边开始节点标识符的字段。',
+          'A field keeping a node identifier where the edge ends.':
+            '保存边结束节点标识符的字段。',
           'No Results': '无结果',
           'Select an Option': '选择一个选项'
         }

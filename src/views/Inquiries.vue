@@ -1,17 +1,17 @@
 <template>
   <div id="my-inquiries-container">
     <div v-if="allInquiries.length === 0" id="start-guide">
-      You don't have saved inquiries so far.
-      <span class="link" @click="emitCreateTabEvent">Create</span>
-      the one from scratch or
-      <span class="link" @click="importInquiries">import</span> from a file.
+      您目前还没有保存的查询。
+      <span class="link" @click="emitCreateTabEvent">创建</span>
+      一个新查询或从文件
+      <span class="link" @click="importInquiries">导入</span>。
     </div>
     <div
       v-if="$store.state.loadingPredefinedInquiries"
       id="loading-predefined-status"
     >
       <loading-indicator />
-      Loading predefined inquiries...
+      正在加载预定义查询...
     </div>
     <div
       v-show="allInquiries.length > 0"
@@ -25,7 +25,7 @@
             class="toolbar"
             @click="importInquiries"
           >
-            Import
+            导入
           </button>
           <button
             v-show="selectedInquiriesCount > 0"
@@ -33,7 +33,7 @@
             class="toolbar"
             @click="exportSelectedInquiries()"
           >
-            Export
+            导出
           </button>
           <button
             v-show="selectedNotPredefinedCount > 0"
@@ -41,20 +41,20 @@
             class="toolbar"
             @click="showDeleteDialog(selectedInquiriesIds)"
           >
-            Delete
+            删除
           </button>
         </div>
         <div id="toolbar-search">
           <text-field
             v-model="filter"
-            placeholder="Search inquiry by name"
+            placeholder="按名称搜索查询"
             width="300px"
           />
         </div>
       </div>
 
       <div v-show="showedInquiries.length === 0" id="inquiries-not-found">
-        No inquiries found
+        未找到查询
       </div>
 
       <div v-show="showedInquiries.length > 0" class="rounded-bg">
@@ -66,9 +66,12 @@
                 theme="light"
                 @click="toggleSelectAll"
               />
-              <div class="name-th">Name</div>
+              <div class="name-th">名称</div>
             </div>
-            <div class="fixed-header">Created at</div>
+            <div class="fixed-header">报表类别</div>
+            <div class="fixed-header">类型</div>
+            <div class="fixed-header">创建时间</div>
+            <div class="fixed-header">操作</div>
           </div>
         </div>
         <div
@@ -91,45 +94,55 @@
                       @click="toggleRow($event, inquiry.id)"
                     />
                     <div class="name">{{ inquiry.name }}</div>
-                    <div
-                      v-if="inquiry.isPredefined"
-                      class="badge"
-                      @mouseenter="showTooltip"
-                      @mouseleave="hideTooltip"
-                    >
-                      Predefined
-                      <span
-                        ref="tooltip"
-                        class="icon-tooltip"
-                        :style="tooltipStyle"
-                      >
-                        Predefined inquiries come from the server. These
-                        inquiries can’t be deleted or renamed.
-                      </span>
-                    </div>
                   </div>
                 </td>
                 <td>
-                  <div class="second-column">
-                    <div class="date-container">
-                      {{ createdAtFormatted(inquiry.createdAt) }}
-                    </div>
-                    <div class="icons-container">
-                      <rename-icon
-                        v-if="!inquiry.isPredefined"
-                        @click="showRenameDialog(inquiry.id)"
-                      />
-                      <copy-icon @click="duplicateInquiry(index)" />
-                      <export-icon
-                        tooltip="Export inquiry to file"
-                        tooltipPosition="top-left"
-                        @click="exportToFile([inquiry], `${inquiry.name}.json`)"
-                      />
-                      <delete-icon
-                        v-if="!inquiry.isPredefined"
-                        @click="showDeleteDialog(new Set().add(inquiry.id))"
-                      />
-                    </div>
+                  <div class="category-column">
+                    {{ inquiry.category || '默认类别' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="type-column">
+                    {{ inquiry.type === 'system' ? '系统内置' : '自定义' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="date-container">
+                    {{ createdAtFormatted(inquiry.createdAt) }}
+                  </div>
+                </td>
+                <td>
+                  <div class="actions-container">
+                    <span
+                      v-if="inquiry.type !== 'system'"
+                      class="action-item"
+                      @click="showRenameDialog(inquiry.id)"
+                    >
+                      <rename-icon class="action-icon" />
+                      <span class="action-text">修改</span>
+                    </span>
+                    <span
+                      class="action-item"
+                      @click="duplicateInquiry(index)"
+                    >
+                      <copy-icon class="action-icon" />
+                      <span class="action-text">复制</span>
+                    </span>
+                    <span
+                      class="action-item"
+                      @click="exportToFile([inquiry], `${inquiry.name}.json`)"
+                    >
+                      <export-icon class="action-icon" />
+                      <span class="action-text">导出</span>
+                    </span>
+                    <span
+                      v-if="inquiry.type !== 'system'"
+                      class="action-item"
+                      @click="showDeleteDialog(new Set().add(inquiry.id))"
+                    >
+                      <delete-icon class="action-icon" />
+                      <span class="action-text">删除</span>
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -142,27 +155,27 @@
     <!--Rename Inquiry dialog  -->
     <modal modalId="rename" class="dialog" contentStyle="width: 560px;">
       <div class="dialog-header">
-        Rename inquiry
+        重命名查询
         <close-icon @click="$modal.hide('rename')" />
       </div>
       <div class="dialog-body">
         <text-field
           v-model="newName"
-          label="New inquiry name"
+          label="新查询名称"
           :errorMsg="errorMsg"
           width="100%"
         />
       </div>
       <div class="dialog-buttons-container">
-        <button class="secondary" @click="$modal.hide('rename')">Cancel</button>
-        <button class="primary" @click="renameInquiry">Rename</button>
+        <button class="secondary" @click="$modal.hide('rename')">取消</button>
+        <button class="primary" @click="renameInquiry">重命名</button>
       </div>
     </modal>
 
     <!--Delete Inquiry dialog  -->
     <modal modalId="delete" class="dialog" contentStyle="width: 480px;">
       <div class="dialog-header">
-        Delete {{ deleteGroup ? 'inquiries' : 'inquiry' }}
+        删除{{ deleteGroup ? '查询' : '查询' }}
         <close-icon @click="$modal.hide('delete')" />
       </div>
       <div class="dialog-body">
@@ -172,29 +185,29 @@
           id="note"
         >
           <img src="~@/assets/images/info.svg" />
-          Note: Predefined inquiries you've selected won't be deleted
+          注意：您选择的预定义查询不会被删除
         </div>
       </div>
       <div class="dialog-buttons-container">
-        <button class="secondary" @click="$modal.hide('delete')">Cancel</button>
-        <button class="primary" @click="deleteInquiry">Delete</button>
+        <button class="secondary" @click="$modal.hide('delete')">取消</button>
+        <button class="primary" @click="deleteInquiry">删除</button>
       </div>
     </modal>
   </div>
 </template>
 
 <script>
-import RenameIcon from '@/components/svg/rename'
-import CopyIcon from '@/components/svg/copy'
-import ExportIcon from '@/components/svg/export'
-import DeleteIcon from '@/components/svg/delete'
-import CloseIcon from '@/components/svg/close'
-import TextField from '@/components/Common/TextField'
 import CheckBox from '@/components/Common/CheckBox'
 import LoadingIndicator from '@/components/Common/LoadingIndicator'
-import tooltipMixin from '@/tooltipMixin'
-import storedInquiries from '@/lib/storedInquiries'
+import TextField from '@/components/Common/TextField'
+import CloseIcon from '@/components/svg/close'
+import CopyIcon from '@/components/svg/copy'
+import DeleteIcon from '@/components/svg/delete'
+import ExportIcon from '@/components/svg/export'
+import RenameIcon from '@/components/svg/rename'
 import eventBus from '@/lib/eventBus'
+import storedInquiries from '@/lib/storedInquiries'
+import tooltipMixin from '@/tooltipMixin'
 
 export default {
   name: 'Inquiries',
@@ -272,7 +285,7 @@ export default {
           }`
         : `"${this.inquiries[this.processedInquiryIndex].name}"`
 
-      return `Are you sure you want to delete ${deleteItem}?`
+      return `您确定要删除${deleteItem}吗？`
     }
   },
   watch: {
@@ -336,17 +349,14 @@ export default {
       if (!value) {
         return ''
       }
-      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' }
-      const timeOptions = {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      }
-      return (
-        new Date(value).toLocaleDateString('en-GB', dateOptions) +
-        ' ' +
-        new Date(value).toLocaleTimeString('en-GB', timeOptions)
-      )
+      const date = new Date(value)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      const seconds = String(date.getSeconds()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
     },
     calcNameWidth() {
       const nameWidth =
@@ -376,7 +386,7 @@ export default {
     },
     renameInquiry() {
       if (!this.newName) {
-        this.errorMsg = "Inquiry name can't be empty"
+        this.errorMsg = '查询名称不能为空'
         return
       }
       this.$store.dispatch('renameInquiry', {
@@ -551,22 +561,39 @@ export default {
 
 table.sqliteviz-table {
   margin-top: 0;
+  width: 100%;
 }
 
 .sqliteviz-table tbody tr td {
   min-width: 0;
   height: 40px;
+  padding: 0 12px;
+  text-align: left;
 }
 
 .sqliteviz-table tbody tr td:first-child {
-  width: 70%;
+  width: 30%;
   max-width: 0;
   padding: 0 12px;
 }
-.sqliteviz-table tbody tr td:last-child {
-  width: 30%;
+
+.sqliteviz-table tbody tr td:nth-child(2),
+.sqliteviz-table tbody tr td:nth-child(3) {
+  width: 15%;
   max-width: 0;
-  padding: 0 24px;
+  padding: 0 12px;
+}
+
+.sqliteviz-table tbody tr td:nth-child(4) {
+  width: 20%;
+  max-width: 0;
+  padding: 0 12px;
+}
+
+.sqliteviz-table tbody tr td:last-child {
+  width: 20%;
+  max-width: 0;
+  padding: 0 12px;
 }
 
 .sqliteviz-table tbody .cell-data {
@@ -589,27 +616,49 @@ table.sqliteviz-table {
   color: var(--color-text-active);
 }
 
-.sqliteviz-table .second-column {
+/* 操作容器样式 */
+.actions-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
   width: 100%;
-  max-width: 100%;
 }
 
-.icons-container {
-  display: none;
-  margin-right: -12px;
+/* 操作项样式 */
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-size: 14px;
+  transition: color 0.2s;
 }
+
+.action-item:hover {
+  color: var(--color-primary-dark);
+}
+
+/* 操作图标样式 */
+.action-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* 操作文字样式 */
+.action-text {
+  white-space: nowrap;
+}
+
+/* 日期容器样式 */
 .date-container {
   flex-shrink: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sqliteviz-table tbody tr:hover .icons-container {
-  display: flex;
-}
+
 .dialog input {
   width: 100%;
 }
@@ -618,20 +667,12 @@ button.toolbar {
   margin-right: 16px;
 }
 
+/* 移除旧的图标容器样式 */
+.icons-container,
 .badge {
   display: none;
-  background-color: var(--color-gray-light-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-small);
-  padding: 2px 6px;
-  font-size: 11px;
-  line-height: normal;
-  margin-left: 12px;
 }
 
-.sqliteviz-table tbody tr:hover .badge {
-  display: block;
-}
 #note {
   margin-top: 24px;
 }

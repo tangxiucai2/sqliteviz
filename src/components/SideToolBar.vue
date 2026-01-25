@@ -37,10 +37,10 @@
 </template>
 
 <script>
-import IconButton from '@/components/Common/IconButton';
-import DataViewIcon from '@/components/svg/dataView';
-import SqlEditorIcon from '@/components/svg/sqlEditor';
-import TableIcon from '@/components/svg/table';
+import IconButton from '@/components/Common/IconButton'
+import DataViewIcon from '@/components/svg/dataView'
+import SqlEditorIcon from '@/components/svg/sqlEditor'
+import TableIcon from '@/components/svg/table'
 
 export default {
   name: 'SideToolBar',

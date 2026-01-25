@@ -1,8 +1,5 @@
 <template>
-  <Field
-    label="层级属性"
-    fieldContainerClassName="multiselect-field"
-  >
+  <Field label="层级属性" fieldContainerClassName="multiselect-field">
     <multiselect
       :modelValue="modelValue.hierarchyAttributes"
       class="sqliteviz-select"

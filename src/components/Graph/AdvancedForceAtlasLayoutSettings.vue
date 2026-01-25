@@ -6,10 +6,7 @@
     />
   </Field>
 
-  <Field
-    label="防止重叠"
-    fieldContainerClassName="test_fa2_adjustSizes"
-  >
+  <Field label="防止重叠" fieldContainerClassName="test_fa2_adjustSizes">
     <RadioBlocks
       :options="booleanOptions"
       :activeOption="modelValue.adjustSizes"
@@ -17,10 +14,7 @@
     />
   </Field>
 
-  <Field
-    label="Barnes-Hut优化"
-    fieldContainerClassName="test_fa2_barnes_hut"
-  >
+  <Field label="Barnes-Hut优化" fieldContainerClassName="test_fa2_barnes_hut">
     <RadioBlocks
       :options="booleanOptions"
       :activeOption="modelValue.barnesHutOptimize"
@@ -39,10 +33,7 @@
     />
   </Field>
 
-  <Field
-    label="强重力模式"
-    fieldContainerClassName="test_fa2_strong_gravity"
-  >
+  <Field label="强重力模式" fieldContainerClassName="test_fa2_strong_gravity">
     <RadioBlocks
       :options="booleanOptions"
       :activeOption="modelValue.strongGravityMode"
@@ -50,10 +41,7 @@
     />
   </Field>
 
-  <Field
-    label="Noack LinLog模型"
-    fieldContainerClassName="test_fa2_lin_log"
-  >
+  <Field label="Noack LinLog模型" fieldContainerClassName="test_fa2_lin_log">
     <RadioBlocks
       :options="booleanOptions"
       :activeOption="modelValue.linLogMode"

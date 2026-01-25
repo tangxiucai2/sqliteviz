@@ -6,7 +6,8 @@ export default {
         inquire.viewOptions = inquire.chart
         delete inquire.chart
       })
-      return inquiries
     }
+    // Always return inquiries array, even if no migration is needed
+    return inquiries
   }
 }

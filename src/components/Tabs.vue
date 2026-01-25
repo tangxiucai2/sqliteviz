@@ -23,15 +23,16 @@
     </div>
     <tab v-for="tab in tabs" :key="tab.id" :tab="tab" />
     <div v-show="tabs.length === 0" id="start-guide">
-      <span class="link" @click="emitCreateTabEvent">Create</span>
-      new inquiry from scratch or open one from
-      <router-link class="link" to="/inquiries">Inquiries</router-link>
+      <span class="link" @click="emitCreateTabEvent">创建</span>
+      一个新查询或从
+      <router-link class="link" to="/inquiries">查询列表</router-link>
+      打开一个
     </div>
 
     <!--Close tab warning dialog  -->
     <modal modalId="close-warn" class="dialog" contentStyle="width: 560px;">
       <div class="dialog-header">
-        Close tab
+        关闭标签页
         {{
           closingTab !== null
             ? closingTab.name || `[${closingTab.tempName}]`
@@ -40,23 +41,23 @@
         <close-icon @click="$modal.hide('close-warn')" />
       </div>
       <div class="dialog-body">
-        You have unsaved changes. Save changes in
+        您有未保存的更改。在关闭
         {{
           closingTab !== null
             ? closingTab.name || `[${closingTab.tempName}]`
             : ''
         }}
-        before closing?
+        之前保存更改吗？
       </div>
       <div class="dialog-buttons-container">
         <button class="secondary" @click="closeTab(closingTab)">
-          Close without saving
+          不保存关闭
         </button>
         <button class="secondary" @click="$modal.hide('close-warn')">
-          Don't close
+          取消关闭
         </button>
         <button class="primary" @click="saveAndClose(closingTab)">
-          Save and close
+          保存并关闭
         </button>
       </div>
     </modal>
@@ -64,9 +65,9 @@
 </template>
 
 <script>
-import Tab from './Tab'
-import CloseIcon from '@/components/svg/close'
-import eventBus from '@/lib/eventBus'
+import CloseIcon from '@/components/svg/close';
+import eventBus from '@/lib/eventBus';
+import Tab from './Tab';
 
 export default {
   components: {

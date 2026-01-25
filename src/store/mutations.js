@@ -80,7 +80,7 @@ export default {
     state.predefinedInquiriesLoaded = value
   },
   setInquiries(state, value) {
-    state.inquiries = value
+    state.inquiries = Array.isArray(value) ? value : []
   },
   setIsWorkspaceVisible(state, value) {
     state.isWorkspaceVisible = value

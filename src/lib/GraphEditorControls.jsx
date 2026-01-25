@@ -7,7 +7,11 @@ class EditorControls extends Component {
     super(props, context)
 
     this.localize = key =>
-      localizeString(this.props.dictionaries || {}, this.props.locale || 'zh', key)
+      localizeString(
+        this.props.dictionaries || {},
+        this.props.locale || 'zh',
+        key
+      )
   }
 
   getChildContext() {

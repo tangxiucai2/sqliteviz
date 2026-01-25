@@ -53,7 +53,7 @@ class Database {
     try {
       const { baseUrl, apiPrefix, endpoints } = config.backend
       const apiUrl = `${baseUrl}${apiPrefix}/${endpoints.executeSql}`
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -67,18 +67,20 @@ class Database {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        )
       }
 
       const responseData = await response.json()
-      
+
       // Check if API returned an error code
       if (responseData.code !== 200) {
         // Handle specific error codes
         const errorMsg = responseData.msg || '未知错误'
         throw new Error(errorMsg)
       }
-      
+
       // API returns { code: 200, msg: "success", data: [results] }
       // if it was more than one select - take only the last one
       const results = responseData.data || []
@@ -95,17 +97,15 @@ class Database {
 
   async validateTableName(name) {
     if (name.startsWith('sqlite_')) {
-      throw new Error("表名不能以 sqlite_ 开头")
+      throw new Error('表名不能以 sqlite_ 开头')
     }
 
     if (/[^\w]/.test(name)) {
-      throw new Error(
-        '表名只能包含字母、数字和下划线'
-      )
+      throw new Error('表名只能包含字母、数字和下划线')
     }
 
     if (/^(\d)/.test(name)) {
-      throw new Error("表名不能以数字开头")
+      throw new Error('表名不能以数字开头')
     }
 
     // Skip the actual validation with database, as we're using backend API

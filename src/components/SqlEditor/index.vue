@@ -36,6 +36,9 @@
 import IconButton from '@/components/Common/IconButton'
 import RunIcon from '@/components/svg/run'
 import ShareIcon from '@/components/svg/share'
+import eventBus from '@/lib/eventBus'
+import storedInquiries from '@/lib/storedInquiries'
+import events from '@/lib/utils/events'
 import time from '@/lib/utils/time'
 import Codemirror from 'codemirror-editor-vue3'
 import 'codemirror/addon/display/autorefresh.js'
@@ -61,6 +64,9 @@ export default {
   data() {
     return {
       query: this.modelValue,
+      selectedDatabase: '业务库',
+      name: '',
+      errorMsg: null,
       cmOptions: {
         tabSize: 4,
         mode: 'text/x-mysql',
@@ -76,6 +82,15 @@ export default {
   computed: {
     runDisabled() {
       return !this.$store.state.db || !this.query || this.isGettingResults
+    },
+    currentInquiryTab() {
+      return this.$store.state.currentTab
+    },
+    isSaved() {
+      return this.currentInquiryTab && this.currentInquiryTab.isSaved
+    },
+    inquiries() {
+      return this.$store.state.inquiries
     }
   },
   watch: {
@@ -92,10 +107,12 @@ export default {
       try {
         // Get current tab
         const currentTabId = this.$store.state.currentTabId
-        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
-        
+        const currentTab = this.$store.state.tabs.find(
+          tab => tab.id === currentTabId
+        )
+
         if (!currentTab) return
-        
+
         // Generate shareable URL
         let shareId
         if (currentTab.isSaved && currentTab.inquiryId) {
@@ -105,19 +122,113 @@ export default {
           // For unsaved queries, generate a random ID
           shareId = nanoid(10)
         }
-        
+
         // Create the URL - using window.location.origin to get the base URL
         const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
-        
+
         // Copy to clipboard
         await navigator.clipboard.writeText(shareUrl)
-        
+
         // Show notification (using existing event system or alert for simplicity)
         alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
       } catch (error) {
         console.error('Error sharing query:', error)
         alert('复制分享链接失败，请重试。')
       }
+    },
+    createNewInquiry() {
+      this.$store.dispatch('addTab').then(id => {
+        this.$store.commit('setCurrentTabId', id)
+        if (this.$route.path !== '/workspace') {
+          this.$router.push('/workspace')
+        }
+      })
+
+      events.send('inquiry.create', null, { auto: false })
+    },
+    onSave(skipConcurrentEditingCheck = false) {
+      if (!this.currentInquiryTab) return
+      
+      if (storedInquiries.isTabNeedName(this.currentInquiryTab)) {
+        this.openSaveModal()
+        return
+      }
+
+      if (!skipConcurrentEditingCheck) {
+        const inquiryInStore = this.inquiries.find(
+          inquiry => inquiry.id === this.currentInquiryTab.id
+        )
+
+        if (
+          inquiryInStore &&
+          inquiryInStore.updatedAt !== this.currentInquiryTab.updatedAt
+        ) {
+          this.$modal.show('inquiry-conflict')
+          return
+        }
+      }
+      this.saveInquiry()
+    },
+    onSaveAs() {
+      this.openSaveModal()
+    },
+    openSaveModal() {
+      this.$modal.hide('inquiry-conflict')
+      this.errorMsg = null
+      this.name = ''
+      this.$modal.show('save')
+    },
+    validateSaveFormAndSaveInquiry() {
+      if (!this.name) {
+        this.errorMsg = "查询名称不能为空"
+        return
+      }
+      this.saveInquiry()
+    },
+    async saveInquiry() {
+      if (!this.currentInquiryTab) return
+      
+      const eventName = 
+        this.currentInquiryTab.name && this.name
+          ? 'inquiry.saveAs'
+          : 'inquiry.save'
+
+      // Save inquiry
+      const value = await this.$store.dispatch('saveInquiry', {
+        inquiryTab: this.currentInquiryTab,
+        newName: this.name
+      })
+
+      // Update tab in store
+      this.$store.commit('updateTab', {
+        tab: this.currentInquiryTab,
+        newValues: {
+          name: value.name,
+          id: value.id,
+          query: value.query,
+          viewType: value.viewType,
+          viewOptions: value.viewOptions,
+          isSaved: true,
+          updatedAt: value.updatedAt
+        }
+      })
+
+      // Hide dialogs
+      this.$modal.hide('save')
+      this.$modal.hide('inquiry-conflict')
+      this.errorMsg = null
+      this.name = ''
+
+      // Signal about saving
+      eventBus.$emit('inquirySaved')
+      events.send(eventName)
+    },
+    cancelSave() {
+      this.errorMsg = null
+      this.name = ''
+      this.$modal.hide('save')
+      this.$modal.hide('inquiry-conflict')
+      eventBus.$off('inquirySaved')
     }
   }
 }
@@ -126,6 +237,7 @@ export default {
 <style scoped>
 .sql-editor-panel {
   display: flex;
+
   flex-grow: 1;
   height: 100%;
   max-height: 100%;

@@ -19,13 +19,13 @@
       />
     </svg>
     <span ref="tooltip" class="icon-tooltip" :style="tooltipStyle">
-      Rename inquiry
+      重命名查询
     </span>
   </span>
 </template>
 
 <script>
-import tooltipMixin from '@/tooltipMixin'
+import tooltipMixin from '@/tooltipMixin';
 
 export default {
   name: 'RenameIcon',

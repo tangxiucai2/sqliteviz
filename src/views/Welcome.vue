@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import DbUploader from '@/components/DbUploader';
+import DbUploader from '@/components/DbUploader'
 
 export default {
   name: 'Welcome',

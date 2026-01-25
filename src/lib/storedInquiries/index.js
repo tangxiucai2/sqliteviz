@@ -1,54 +1,95 @@
-import { nanoid } from 'nanoid'
-import fu from '@/lib/utils/fileIo'
+import { config } from '@/config'
 import events from '@/lib/utils/events'
+import fu from '@/lib/utils/fileIo'
+import { nanoid } from 'nanoid'
 import migration from './_migrations'
 
 const migrate = migration._migrate
-const myInquiriesKey = 'myInquiries'
+const { baseUrl, apiPrefix, endpoints } = config.backend
+const buildUrl = (path) => `${baseUrl}${apiPrefix}/${path}`
 
 export default {
   version: 2,
-  myInquiriesKey,
-  getStoredInquiries() {
-    let myInquiries = JSON.parse(localStorage.getItem(myInquiriesKey))
-    if (!myInquiries) {
-      const oldInquiries = localStorage.getItem('myQueries')
-      if (oldInquiries) {
-        myInquiries = migrate(1, JSON.parse(oldInquiries))
-        this.updateStorage(myInquiries)
-        return myInquiries
+  
+  // 获取查询报表列表
+  async getStoredInquiries() {
+    try {
+      const response = await fetch(buildUrl(endpoints.inquiries.list), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch inquiries: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      return data.inquiries || []
+    } catch (error) {
+      console.error('Error fetching inquiries from API, falling back to local file:', error)
+      try {
+        // 尝试从本地文件获取查询列表
+        const localResponse = await fetch('/inquiries.json')
+        if (localResponse.ok) {
+          const localData = await localResponse.json()
+          return localData || []
+        }
+      } catch (localError) {
+        console.error('Error reading local inquiries file:', localError)
       }
       return []
     }
-
-    return (myInquiries && myInquiries.inquiries) || []
   },
 
-  duplicateInquiry(baseInquiry) {
-    const newInquiry = JSON.parse(JSON.stringify(baseInquiry))
-    newInquiry.name = newInquiry.name + ' Copy'
-    newInquiry.id = nanoid()
-    newInquiry.createdAt = new Date().toJSON()
-    newInquiry.updatedAt = new Date().toJSON()
-    delete newInquiry.isPredefined
-
-    return newInquiry
+  // 复制查询报表
+  async duplicateInquiry(baseInquiry) {
+    try {
+      const response = await fetch(buildUrl(endpoints.inquiries.copy), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inquiryId: baseInquiry.id
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Failed to copy inquiry: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      return data.inquiry
+    } catch (error) {
+      console.error('Error copying inquiry:', error)
+      // 失败时使用本地复制作为降级方案
+      const newInquiry = JSON.parse(JSON.stringify(baseInquiry))
+      newInquiry.name = newInquiry.name + ' Copy'
+      newInquiry.id = nanoid()
+      newInquiry.createdAt = new Date().toJSON()
+      newInquiry.updatedAt = new Date().toJSON()
+      newInquiry.type = 'custom' // 自定义类型
+      newInquiry.category = '默认类别' // 默认类别
+      delete newInquiry.isPredefined
+      
+      return newInquiry
+    }
   },
 
   isTabNeedName(inquiryTab) {
-    return inquiryTab.isPredefined || !inquiryTab.name
+    return inquiryTab.type === 'system' || !inquiryTab.name
   },
 
-  updateStorage(inquiries) {
-    localStorage.setItem(
-      myInquiriesKey,
-      JSON.stringify({ version: this.version, inquiries })
-    )
+  // 更新查询报表存储
+  async updateStorage(inquiries) {
+    // 不再使用本地存储，改为后端API调用
+    console.log('Inquiry storage is managed by backend API')
   },
 
   serialiseInquiries(inquiryList) {
     const preparedData = JSON.parse(JSON.stringify(inquiryList))
-    preparedData.forEach(inquiry => delete inquiry.isPredefined)
     return JSON.stringify(
       { version: this.version, inquiries: preparedData },
       null,
@@ -66,44 +107,68 @@ export default {
     } else {
       inquiryList = inquiries.inquiries || []
     }
-
-    // Generate new ids if they are the same as existing inquiries
+    
+    // 为导入的查询设置默认值
     inquiryList.forEach(inquiry => {
-      const allInquiriesIds = this.getStoredInquiries().map(
-        inquiry => inquiry.id
-      )
-      if (allInquiriesIds.includes(inquiry.id)) {
-        inquiry.id = nanoid()
+      if (!inquiry.type) {
+        inquiry.type = 'custom'
       }
+      if (!inquiry.category) {
+        inquiry.category = '默认类别'
+      }
+      delete inquiry.isPredefined
     })
 
     return inquiryList
   },
 
-  importInquiries() {
+  // 导入查询报表
+  async importInquiries() {
     return fu.importFile().then(str => {
       const inquires = this.deserialiseInquiries(str)
-
+      
+      // 这里可以添加导入到后端的逻辑
+      // 暂时先返回导入的数据，由调用方处理
+      
       events.send('inquiry.import', inquires.length)
-
       return inquires
     })
   },
-  export(inquiryList, fileName) {
-    const jsonStr = this.serialiseInquiries(inquiryList)
-    fu.exportToFile(jsonStr, fileName)
-
+  
+  // 导出查询报表
+  async export(inquiryList, fileName) {
+    try {
+      // 先尝试使用后端API导出
+      const response = await fetch(buildUrl(endpoints.inquiries.export), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inquiryIds: inquiryList.map(inquiry => inquiry.id)
+        })
+      })
+      
+      if (response.ok) {
+        const blob = await response.blob()
+        fu.exportBlobToFile(blob, fileName)
+      } else {
+        // 失败时使用本地导出作为降级方案
+        const jsonStr = this.serialiseInquiries(inquiryList)
+        fu.exportToFile(jsonStr, fileName)
+      }
+    } catch (error) {
+      console.error('Error exporting inquiries:', error)
+      // 失败时使用本地导出作为降级方案
+      const jsonStr = this.serialiseInquiries(inquiryList)
+      fu.exportToFile(jsonStr, fileName)
+    }
+    
     events.send('inquiry.export', inquiryList.length)
   },
 
   async readPredefinedInquiries() {
-    const res = await fu.readFile('./inquiries.json')
-    const data = await res.json()
-
-    if (!data.version) {
-      return data.length > 0 ? migrate(1, data) : []
-    } else {
-      return data.inquiries
-    }
+    // 预定义查询现在由后端返回，包含在getStoredInquiries中
+    return []
   }
 }

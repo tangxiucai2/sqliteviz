@@ -64,12 +64,12 @@ $.extend(
 
 // 渲染器名称映射
 const rendererNameMap = {
-  'Table': '表格',
+  Table: '表格',
   'Table With Subtotal': '带小计的表格',
-  'Heatmap': '热力图',
+  Heatmap: '热力图',
   'Row Heatmap': '行热力图',
   'Col Heatmap': '列热力图',
-  'Treemap': '树状图',
+  Treemap: '树状图',
   'TSV Export': 'TSV导出',
   'Plotly Scatter': 'Plotly散点图',
   'Plotly Line': 'Plotly折线图',
@@ -83,7 +83,7 @@ const rendererNameMap = {
   'Plotly 3D Surface': 'Plotly 3D曲面图',
   'Plotly Parallel Categories': 'Plotly平行类别图',
   'Custom chart': '自定义图表'
-};
+}
 
 export const renderers = Object.keys($.pivotUtilities.renderers).map(key => {
   return {
@@ -94,35 +94,35 @@ export const renderers = Object.keys($.pivotUtilities.renderers).map(key => {
 
 // 聚合函数名称映射
 const aggregatorNameMap = {
-  'Count': '计数',
+  Count: '计数',
   'Count as Fraction of Total': '计数占总计的比例',
   'Count as Fraction of Rows': '计数占行的比例',
   'Count as Fraction of Columns': '计数占列的比例',
-  'Sum': '求和',
+  Sum: '求和',
   'Sum as Fraction of Total': '求和占总计的比例',
   'Sum as Fraction of Rows': '求和占行的比例',
   'Sum as Fraction of Columns': '求和占列的比例',
-  'Average': '平均值',
+  Average: '平均值',
   'Average as Fraction of Total': '平均值占总计的比例',
   'Average as Fraction of Rows': '平均值占行的比例',
   'Average as Fraction of Columns': '平均值占列的比例',
-  'Minimum': '最小值',
+  Minimum: '最小值',
   'Minimum as Fraction of Total': '最小值占总计的比例',
   'Minimum as Fraction of Rows': '最小值占行的比例',
   'Minimum as Fraction of Columns': '最小值占列的比例',
-  'Maximum': '最大值',
+  Maximum: '最大值',
   'Maximum as Fraction of Total': '最大值占总计的比例',
   'Maximum as Fraction of Rows': '最大值占行的比例',
   'Maximum as Fraction of Columns': '最大值占列的比例',
-  'First': '第一个',
+  First: '第一个',
   'First as Fraction of Total': '第一个占总计的比例',
   'First as Fraction of Rows': '第一个占行的比例',
   'First as Fraction of Columns': '第一个占列的比例',
-  'Last': '最后一个',
+  Last: '最后一个',
   'Last as Fraction of Total': '最后一个占总计的比例',
   'Last as Fraction of Rows': '最后一个占行的比例',
   'Last as Fraction of Columns': '最后一个占列的比例',
-  'Median': '中位数',
+  Median: '中位数',
   'Median as Fraction of Total': '中位数占总计的比例',
   'Median as Fraction of Rows': '中位数占行的比例',
   'Median as Fraction of Columns': '中位数占列的比例',
@@ -142,7 +142,7 @@ const aggregatorNameMap = {
   '80% Lower Bound as Fraction of Total': '80%下限占总计的比例',
   '80% Lower Bound as Fraction of Rows': '80%下限占行的比例',
   '80% Lower Bound as Fraction of Columns': '80%下限占列的比例'
-};
+}
 
 export const aggregators = Object.keys($.pivotUtilities.aggregators).map(
   key => {

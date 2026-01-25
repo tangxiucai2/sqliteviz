@@ -276,7 +276,7 @@ export default {
     },
     async loadToDb(file) {
       if (!this.tableName) {
-        this.tableNameError = "表名不能为空"
+        this.tableNameError = '表名不能为空'
         return
       }
 
@@ -357,8 +357,7 @@ export default {
           this.addedTable = this.tableName
           // Inform about import success
           period = time.getPeriod(start, end)
-          importMsg.message =
-            `将 ${this.typeName} 导入 SQLite 数据库已在 ${period} 内完成。`
+          importMsg.message = `将 ${this.typeName} 导入 SQLite 数据库已在 ${period} 内完成。`
           importMsg.type = 'success'
 
           // Loading indicator for import is not needed anymore
@@ -420,8 +419,8 @@ export default {
         return [
           '/*',
           ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
-              ` * 运行此 SQL 查询以获取属性 ${firstKey} 的值，` +
-                '并使它们可用于图表绘制。',
+          ` * 运行此 SQL 查询以获取属性 ${firstKey} 的值，` +
+            '并使它们可用于图表绘制。',
           ' */',
           `SELECT doc->>'${firstKey}'`,
           `FROM "${this.addedTable}"`
@@ -455,10 +454,10 @@ export default {
         console.error(err)
         return [
           '/*',
-            ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
-            ' */',
-            'SELECT *',
-            `FROM "${this.addedTable}"`
+          ` * 您的 NDJSON 文件已导入到 ${this.addedTable} 表中。`,
+          ' */',
+          'SELECT *',
+          `FROM "${this.addedTable}"`
         ].join('\n')
       }
     }

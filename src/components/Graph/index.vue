@@ -7,10 +7,11 @@
       v-show="!dataSourceIsValid"
       class="warning data-view-warning invalid-data"
     >
-      结果集对图形可视化无效。在
-      <a href="https://sqliteviz.com/docs/graph/" target="_blank">
+      结果集对图形可视化无效。
+      <!-- 在
+      <a href="#" target="_blank">
         文档</a
-      >中了解更多信息。
+      >中了解更多信息。 -->
     </div>
     <div
       class="graph"

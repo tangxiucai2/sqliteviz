@@ -21,13 +21,13 @@
       />
     </svg>
     <span ref="tooltip" class="icon-tooltip" :style="tooltipStyle">
-      Duplicate inquiry
+      复制查询
     </span>
   </span>
 </template>
 
 <script>
-import tooltipMixin from '@/tooltipMixin'
+import tooltipMixin from '@/tooltipMixin';
 
 export default {
   name: 'CopyIcon',
