@@ -27,7 +27,7 @@
         v-model="tab.query"
         :isGettingResults="tab.isGettingResults"
         @switch-to="onSwitchView('sqlEditor', $event)"
-        @run="tab.execute()"
+        @run="(dataSource) => tab.execute(dataSource)"
       />
     </teleport>
 

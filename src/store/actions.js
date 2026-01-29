@@ -42,7 +42,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to save inquiry: ${response.status}`)
+        throw new Error(`保存查询失败: ${response.status}`)
       }
       
       const savedInquiry = await response.json()
@@ -103,7 +103,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to add inquiry: ${response.status}`)
+        throw new Error(`添加查询失败: ${response.status}`)
       }
       
       const addedInquiry = await response.json()
@@ -131,7 +131,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to delete inquiries: ${response.status}`)
+        throw new Error(`删除查询失败: ${response.status}`)
       }
     } catch (error) {
       console.error('Error deleting inquiries:', error)
@@ -168,7 +168,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to rename inquiry: ${response.status}`)
+        throw new Error(`重命名查询失败: ${response.status}`)
       }
     } catch (error) {
       console.error('Error renaming inquiry:', error)

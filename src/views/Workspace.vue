@@ -1,8 +1,13 @@
 <template>
   <div>
+    <div v-if="isEmbeddedMode">
+      <!-- 嵌入模式下直接显示标签页内容，不使用splitpanes -->
+      <tabs />
+    </div>
     <splitpanes
+      v-else
       class="schema-tabs-splitter"
-      :before="{ size: schemaWidth, max: 30 }"
+      :before="{ size: schemaWidth, max: 30, resizable: true }"
       :after="{ size: 100 - schemaWidth, max: 100 }"
       :default="{ before: 20, after: 80 }"
     >
@@ -17,10 +22,10 @@
 </template>
 
 <script>
-import Splitpanes from '@/components/Common/Splitpanes'
-import Schema from '@/components/Schema'
-import Tabs from '@/components/Tabs'
-import events from '@/lib/utils/events'
+import Splitpanes from '@/components/Common/Splitpanes';
+import Schema from '@/components/Schema';
+import Tabs from '@/components/Tabs';
+import events from '@/lib/utils/events';
 
 export default {
   name: 'Workspace',
@@ -30,8 +35,14 @@ export default {
     Tabs
   },
   data() {
+    const isEmbeddedMode = new URLSearchParams(window.location.search).get('embedded') === '1'
     return {
-      schemaWidth: this.$route.query.hide_schema === '1' ? 0 : 20
+      schemaWidth: this.$route.query.hide_schema === '1' || isEmbeddedMode ? 0 : 20
+    }
+  },
+  computed: {
+    isEmbeddedMode() {
+      return new URLSearchParams(window.location.search).get('embedded') === '1'
     }
   },
   async beforeCreate() {

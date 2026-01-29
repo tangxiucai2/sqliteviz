@@ -1,5 +1,5 @@
 <template>
-  <nav>
+  <nav v-if="!isEmbeddedMode">
     <div id="nav-links">
       <a href="https://sqliteviz.com">
         <img src="~@/assets/images/logo_simple.svg" />
@@ -32,7 +32,6 @@
       </button>
       <app-diagnostic-info />
     </div>
-
     <!--Save Inquiry dialog  -->
     <modal modalId="save" class="dialog" contentStyle="width: 560px;">
       <div class="dialog-header">
@@ -123,6 +122,9 @@ export default {
         this.currentInquiryTab &&
         (!this.$store.state.db || !this.currentInquiryTab.query)
       )
+    },
+    isEmbeddedMode() {
+      return new URLSearchParams(window.location.search).get('embedded') === '1'
     }
   },
   created() {

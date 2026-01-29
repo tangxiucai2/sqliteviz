@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import SortIcon from '@/components/svg/sort';
+import SortIcon from '@/components/svg/sort'
 
 export default {
   name: 'PivotSortBtn',

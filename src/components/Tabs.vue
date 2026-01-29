@@ -1,6 +1,6 @@
 <template>
   <div id="tabs">
-    <div v-if="tabs.length > 0" id="tabs-header">
+    <div v-if="!isEmbeddedMode && tabs.length > 0" id="tabs-header">
       <div
         v-for="(tab, index) in tabs"
         :key="index"
@@ -12,7 +12,7 @@
           <span v-if="tab.name">{{ tab.name }}</span>
           <span v-else class="tab-untitled">{{ tab.tempName }}</span>
         </div>
-        <div>
+        <div v-if="!isEmbeddedMode">
           <close-icon
             class="close-icon"
             :size="10"
@@ -86,6 +86,9 @@ export default {
     },
     selectedTabId() {
       return this.$store.state.currentTabId
+    },
+    isEmbeddedMode() {
+      return new URLSearchParams(window.location.search).get('embedded') === '1'
     }
   },
   created() {

@@ -22,7 +22,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch inquiries: ${response.status}`)
+        throw new Error(`获取查询列表失败: ${response.status}`)
       }
       
       const data = await response.json()
@@ -57,7 +57,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`Failed to copy inquiry: ${response.status}`)
+        throw new Error(`复制查询失败: ${response.status}`)
       }
       
       const data = await response.json()

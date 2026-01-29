@@ -49,7 +49,7 @@ class Database {
     this.schema = []
   }
 
-  async execute(commands) {
+  async execute(commands, dataSource = '1') {
     try {
       const { baseUrl, apiPrefix, endpoints } = config.backend
       const apiUrl = `${baseUrl}${apiPrefix}/${endpoints.executeSql}`
@@ -61,7 +61,8 @@ class Database {
         },
         body: JSON.stringify({
           sql: commands,
-          params: []
+          params: [],
+          ds: dataSource
         })
       })
 
@@ -86,7 +87,11 @@ class Database {
       const results = responseData.data || []
       return results[results.length - 1]
     } catch (error) {
-      throw new Error(error.message)
+      if (error.message === 'Failed to fetch') {
+        throw new Error('网络请求失败')
+      } else {
+        throw new Error(error.message)
+      }
     }
   }
 

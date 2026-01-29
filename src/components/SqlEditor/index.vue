@@ -1,5 +1,34 @@
 <template>
   <div class="sql-editor-panel">
+    <!-- 操作栏 -->
+    <div class="sql-editor-toolbar">
+      <div class="toolbar-left">
+        <button 
+          class="toolbar-btn primary-btn" 
+          :disabled="runDisabled"
+          :class="{ 'loading': isGettingResults }"
+          @click="$emit('run', dataSource)"
+        >
+          执行
+        </button>
+        <button 
+          class="toolbar-btn secondary-btn"
+          @click="onSave(false)"
+        >
+          保存
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <div class="data-source-selector">
+          <label class="selector-label">数据源：</label>
+          <select v-model="dataSource" class="selector">
+            <option value="1">业务库</option>
+            <option value="2">事件库</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
     <div class="codemirror-box original-style">
       <codemirror
         ref="cm"
@@ -9,34 +38,6 @@
         @change="onChange"
       />
     </div>
-    <side-tool-bar panel="sqlEditor" @switch-to="$emit('switchTo', $event)">
-      <icon-button
-        ref="runBtn"
-        :disabled="runDisabled"
-        :loading="isGettingResults"
-        tooltip="执行SQL查询"
-        tooltipPosition="top-left"
-        @click="$emit('run')"
-      >
-        <run-icon :disabled="runDisabled" />
-      </icon-button>
-      <icon-button
-        ref="shareBtn"
-        tooltip="分享此查询"
-        tooltipPosition="top-left"
-        @click="shareQuery"
-      >
-        <share-icon />
-      </icon-button>
-      <icon-button
-        ref="exportBtn"
-        tooltip="导出报表模板"
-        tooltipPosition="top-left"
-        @click="exportReportTemplate"
-      >
-        <export-icon />
-      </icon-button>
-    </side-tool-bar>
   </div>
 </template>
 
@@ -74,6 +75,7 @@ export default {
   data() {
     return {
       query: this.modelValue,
+      dataSource: '1', // 默认选择业务库
       selectedDatabase: '业务库',
       name: '',
       errorMsg: null,
@@ -274,7 +276,7 @@ export default {
 <style scoped>
 .sql-editor-panel {
   display: flex;
-
+  flex-direction: column;
   flex-grow: 1;
   height: 100%;
   max-height: 100%;
@@ -282,9 +284,122 @@ export default {
   overflow: hidden;
 }
 
+/* 操作栏样式 */
+.sql-editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: var(--color-bg-light);
+  border-bottom: 1px solid var(--color-border-light);
+  align-items: center;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 数据源选择器样式 */
+.data-source-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selector-label {
+  font-size: 14px;
+  color: var(--color-text-base);
+  white-space: nowrap;
+}
+
+.selector {
+  padding: 6px 8px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--color-text-base);
+  background-color: white;
+  cursor: pointer;
+}
+
+.selector:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
+}
+
+.toolbar-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary-btn {
+  background-color: #165dff;
+  color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: #4080ff;
+  color: white;
+}
+
+.primary-btn:disabled {
+  background-color: #c9cdd4;
+  color: white;
+  cursor: not-allowed;
+}
+
+.primary-btn.loading {
+  background-color: #165dff;
+  opacity: 0.8;
+  position: relative;
+  color: white;
+}
+
+.primary-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.secondary-btn {
+  background-color: white;
+  color: var(--color-text-base);
+  border: 1px solid var(--color-border-light);
+}
+
+.secondary-btn:hover {
+  background-color: var(--color-bg-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .codemirror-box {
   flex-grow: 1;
   overflow: auto;
+  position: relative;
 }
 
 :deep(.codemirror-container) {
@@ -299,5 +414,10 @@ export default {
 :deep(.CodeMirror-cursor) {
   width: 1px;
   background: var(--color-text-base);
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
 }
 </style>

@@ -10,18 +10,25 @@
 </template>
 
 <script>
-import MainMenu from '@/components/MainMenu'
-import '@/assets/styles/scrollbars.css'
+import '@/assets/styles/scrollbars.css';
+import MainMenu from '@/components/MainMenu';
 
 export default {
   name: 'MainView',
   components: { MainMenu }
 }
 </script>
+
 <style scoped>
 #main-view {
   margin-top: 68px;
   height: calc(100vh - 68px);
   overflow-y: auto;
+}
+
+/* 嵌入模式样式 */
+#app[data-embedded="true"] #main-view {
+  margin-top: 0;
+  height: 100vh;
 }
 </style>

@@ -31,14 +31,14 @@ export default class Tab {
     this.updatedAt = inquiry.updatedAt
   }
 
-  async execute() {
+  async execute(dataSource = '1') {
     this.isGettingResults = true
     this.result = null
     this.error = null
     const db = this.state.db
     try {
       const start = new Date()
-      this.result = await db.execute(this.query + ';')
+      this.result = await db.execute(this.query + ';', dataSource)
       this.time = time.getPeriod(start, new Date())
 
       if (this.result && this.result.values) {
