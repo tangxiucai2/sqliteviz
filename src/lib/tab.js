@@ -11,7 +11,7 @@ export default class Tab {
       (state.untitledLastIndex
         ? `Untitled ${state.untitledLastIndex}`
         : 'Untitled')
-    this.query = inquiry.query || '/* \n * 请输入SQL进行查询 \n */\n'
+    this.query = inquiry.query || ''
     this.viewOptions = inquiry.viewOptions || undefined
     this.isPredefined = inquiry.isPredefined
     this.viewType = inquiry.viewType || 'chart'
@@ -31,14 +31,34 @@ export default class Tab {
     this.updatedAt = inquiry.updatedAt
   }
 
-  async execute(dataSource = '1') {
+  async execute(dataSource, processedQuery) {
+    console.log('Tab.execute被调用:', dataSource, processedQuery)
     this.isGettingResults = true
     this.result = null
     this.error = null
     const db = this.state.db
     try {
       const start = new Date()
-      this.result = await db.execute(this.query + ';', dataSource)
+      // 确定数据源和查询语句
+      let finalDataSource = '1'
+      let queryToExecute = this.query
+      
+      if (processedQuery) {
+        // 如果提供了processedQuery，使用它
+        queryToExecute = processedQuery
+        finalDataSource = dataSource || '1'
+      } else if (dataSource && typeof dataSource === 'object') {
+        // 兼容新的参数格式
+        finalDataSource = dataSource.dataSource || '1'
+        queryToExecute = dataSource.query || this.query
+      } else {
+        // 兼容旧的参数格式
+        finalDataSource = dataSource || '1'
+      }
+      
+      console.log('执行的SQL:', queryToExecute)
+      console.log('数据源:', finalDataSource)
+      this.result = await db.execute(queryToExecute + ';', finalDataSource)
       this.time = time.getPeriod(start, new Date())
 
       if (this.result && this.result.values) {
@@ -49,11 +69,13 @@ export default class Tab {
       }
 
       events.send('query.run', parseFloat(this.time), { status: 'success' })
+      console.log('查询执行成功')
     } catch (err) {
       this.error = {
         type: 'error',
         message: err
       }
+      console.error('查询执行失败:', err)
 
       events.send('query.run', 0, { status: 'error' })
     }

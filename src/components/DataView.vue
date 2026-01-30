@@ -15,7 +15,8 @@
         @update="$emit('update')"
       />
     </div>
-    <side-tool-bar panel="dataView" @switch-to="$emit('switchTo', $event)">
+    <!-- 非报表模式下显示侧边栏 -->
+    <side-tool-bar v-if="showViewSettings" panel="dataView" @switch-to="$emit('switchTo', $event)">
       <icon-button
         ref="chartBtn"
         :active="mode === 'chart'"
@@ -107,7 +108,9 @@
       </icon-button>
     </side-tool-bar>
 
+    <!-- 非报表模式下显示加载对话框 -->
     <loading-dialog
+      v-if="showViewSettings"
       v-model="showLoadingDialog"
       loadingMsg="正在渲染可视化..."
       successMsg="图片已准备就绪"
@@ -162,7 +165,11 @@ export default {
   props: {
     dataSource: Object,
     initOptions: Object,
-    initMode: String
+    initMode: String,
+    showViewSettings: {
+      type: Boolean,
+      default: true
+    }
   },
   emits: ['update', 'switchTo'],
   data() {
@@ -182,7 +189,7 @@ export default {
         graph: this.initMode === 'graph' ? this.initOptions : null
       },
       showLoadingDialog: false,
-      showViewSettings: true
+      showViewSettings: this.showViewSettings
     }
   },
   computed: {
@@ -241,7 +248,7 @@ export default {
         }
       } else {
         alert(
-          '您的浏览器不支持将图片复制到剪贴板。' +
+          "您的浏览器不支持将图片复制到剪贴板。" +
             '如果您使用Firefox，您可以通过将dom.events.asyncClipboard.clipboardItem设置为true来启用此功能。'
         )
       }
@@ -285,12 +292,10 @@ export default {
       try {
         // Get current tab
         const currentTabId = this.$store.state.currentTabId
-        const currentTab = this.$store.state.tabs.find(
-          tab => tab.id === currentTabId
-        )
-
+        const currentTab = this.$store.state.tabs.find(tab => tab.id === currentTabId)
+        
         if (!currentTab) return
-
+        
         // Generate shareable URL
         let shareId
         if (currentTab.isSaved && currentTab.inquiryId) {
@@ -298,17 +303,15 @@ export default {
           shareId = currentTab.inquiryId
         } else {
           // For unsaved queries, generate a random ID
-          shareId = crypto.randomUUID
-            ? crypto.randomUUID().slice(0, 10)
-            : Math.random().toString(36).substring(2, 12)
+          shareId = crypto.randomUUID ? crypto.randomUUID().slice(0, 10) : Math.random().toString(36).substring(2, 12)
         }
-
+        
         // Create the URL - using window.location.origin to get the base URL
         const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
-
+        
         // Copy to clipboard
         await navigator.clipboard.writeText(shareUrl)
-
+        
         // Show notification
         alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
       } catch (error) {

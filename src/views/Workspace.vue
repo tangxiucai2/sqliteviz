@@ -1,6 +1,12 @@
 <template>
   <div>
-    <div v-if="isEmbeddedMode">
+    <div v-if="isReportMode">
+      <!-- 报表模式下只显示数据视图内容 -->
+      <div class="report-mode-container">
+        <tabs />
+      </div>
+    </div>
+    <div v-else-if="isEmbeddedMode">
       <!-- 嵌入模式下直接显示标签页内容，不使用splitpanes -->
       <tabs />
     </div>
@@ -43,6 +49,9 @@ export default {
   computed: {
     isEmbeddedMode() {
       return new URLSearchParams(window.location.search).get('embedded') === '1'
+    },
+    isReportMode() {
+      return new URLSearchParams(window.location.search).get('mode') === 'report'
     }
   },
   async beforeCreate() {
@@ -51,7 +60,7 @@ export default {
       (!schema || schema.length === 0) &&
       this.$store.state.tabs.length === 0
     ) {
-      const stmt = '/* \n * 请输入SQL进行查询 \n */ \n'
+      const stmt = ''
 
       const tabId = await this.$store.dispatch('addTab', { query: stmt })
       this.$store.commit('setCurrentTabId', tabId)

@@ -1,8 +1,8 @@
-import { config } from '@/config'
-import events from '@/lib/utils/events'
-import fu from '@/lib/utils/fileIo'
 import { nanoid } from 'nanoid'
+import fu from '@/lib/utils/fileIo'
+import events from '@/lib/utils/events'
 import migration from './_migrations'
+import { config } from '@/config'
 
 const migrate = migration._migrate
 const { baseUrl, apiPrefix, endpoints } = config.backend
@@ -22,23 +22,13 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`获取查询列表失败: ${response.status}`)
+        throw new Error(`Failed to fetch inquiries: ${response.status}`)
       }
       
       const data = await response.json()
       return data.inquiries || []
     } catch (error) {
-      console.error('Error fetching inquiries from API, falling back to local file:', error)
-      try {
-        // 尝试从本地文件获取查询列表
-        const localResponse = await fetch('/inquiries.json')
-        if (localResponse.ok) {
-          const localData = await localResponse.json()
-          return localData || []
-        }
-      } catch (localError) {
-        console.error('Error reading local inquiries file:', localError)
-      }
+      console.error('Error fetching inquiries:', error)
       return []
     }
   },
@@ -57,7 +47,7 @@ export default {
       })
       
       if (!response.ok) {
-        throw new Error(`复制查询失败: ${response.status}`)
+        throw new Error(`Failed to copy inquiry: ${response.status}`)
       }
       
       const data = await response.json()

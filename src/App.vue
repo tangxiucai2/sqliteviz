@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import config from '@/config';
 import storedInquiries from '@/lib/storedInquiries';
 
 export default {
@@ -49,8 +50,15 @@ export default {
       }
     }
     
-    // 检查是否为嵌入模式，如果是则加载保存的配置
-    this.loadSavedConfig()
+    // 检查是否为嵌入模式，并且有报表ID参数
+    if (this.isEmbeddedMode) {
+      const urlParams = new URLSearchParams(window.location.search)
+      const reportId = urlParams.get('id')
+      if (reportId) {
+        console.log('检测到报表ID:', reportId)
+        this.loadReportTemplate(reportId)
+      }
+    }
     
     addEventListener('storage', event => {
       // 非嵌入模式下才响应存储事件
@@ -69,32 +77,182 @@ export default {
     })
   },
   methods: {
-    async loadSavedConfig() {
-      const isEmbeddedMode = new URLSearchParams(window.location.search).get('embedded') === '1'
-      if (!isEmbeddedMode) return
-
+    async loadReportTemplate(reportId) {
       try {
-        // 调用后端API获取保存的配置
-        // 这里需要根据实际的后端API地址和认证方式进行调整
-        const response = await fetch('/api/get-config')
+        console.log('加载报表模板:', reportId)
+        // 调用后端接口获取报表模板
+        const { baseUrl, apiPrefix } = config.backend
+        const apiUrl = `${baseUrl}${apiPrefix}/infra/report/${reportId}`
+        console.log('API地址:', apiUrl)
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         
         if (response.ok) {
-          const config = await response.json()
-          if (config) {
-            // 创建新标签页并恢复配置
-            const tabId = await this.$store.dispatch('addTab', {
-              query: config.sql,
-              name: config.name,
-              viewType: config.viewType,
-              viewOptions: config.viewOptions
+          const data = await response.json()
+          console.log('报表模板加载成功:', data)
+          
+          if (data.code === 200 && data.data && data.data.template) {
+            let templateData = data.data.template
+            console.log('报表模板内容:', templateData)
+            
+            // 如果template是字符串，解析为对象
+            if (typeof templateData === 'string') {
+              try {
+                templateData = JSON.parse(templateData)
+                console.log('解析后的模板对象:', templateData)
+              } catch (error) {
+                console.error('解析模板字符串失败:', error)
+              }
+            }
+            
+            // 从inquiries数组中获取第一个元素作为实际的模板数据
+            let template = templateData
+            if (templateData.version && templateData.inquiries && templateData.inquiries.length > 0) {
+              template = templateData.inquiries[0]
+              console.log('从inquiries数组中获取模板:', template)
+            }
+            
+            // 处理SQL查询语句，添加LIMIT子句
+            let processedQuery = template.query.trim()
+            
+            // 根据行数限制处理SQL
+            if (template.rowLimit !== 'unlimited') {
+              let limitValue
+              
+              if (template.rowLimit === 'custom') {
+                // 检查自定义行数是否有效
+                const customLimit = parseInt(template.customRowLimit)
+                if (!isNaN(customLimit) && customLimit >= 1) {
+                  limitValue = customLimit
+                }
+              } else {
+                limitValue = parseInt(template.rowLimit)
+              }
+              
+              if (limitValue) {
+                // 检查SQL是否已经包含LIMIT子句
+                if (!processedQuery.toLowerCase().includes('limit')) {
+                  // 移除末尾的分号（如果有）
+                  if (processedQuery.endsWith(';')) {
+                    processedQuery = processedQuery.slice(0, -1)
+                  }
+                  // 添加LIMIT子句
+                  processedQuery += ` LIMIT ${limitValue}`
+                }
+              }
+            }
+            
+            console.log('处理后的查询:', processedQuery)
+            console.log('数据源:', template.dataSource)
+            
+            // 创建新标签页，设置布局为显示数据视图
+            this.$store.dispatch('addTab', {
+              query: template.query,
+              name: template.name || '报表',
+              viewType: template.viewType || 'chart',
+              viewOptions: template.viewOptions || {
+                data: [],
+                layout: {
+                  autosize: true,
+                  mapbox: {
+                    style: "open-street-map"
+                  },
+                  showlegend: true
+                },
+                frames: []
+              },
+              rowLimit: template.rowLimit || '100',
+              customRowLimit: template.customRowLimit,
+              dataSource: template.dataSource || '1',
+              layout: {
+                sqlEditor: 'above',
+                table: 'hidden',
+                dataView: 'bottom'
+              }
+            }).then(tabId => {
+              console.log('创建标签页成功:', tabId)
+              this.$store.commit('setCurrentTabId', tabId)
+              
+              // 等待新标签页创建完成
+              setTimeout(() => {
+                // 获取新标签页
+                const newTab = this.$store.state.tabs.find(
+                  tab => tab.id === tabId
+                )
+                
+                if (newTab) {
+                  console.log('获取新标签页成功，执行查询...')
+                  // 在新标签页中执行查询
+                  newTab.execute(template.dataSource || '1', processedQuery).then(() => {
+                    console.log('新标签页查询执行完成')
+                    
+                    // 等待查询结果处理完成
+                    setTimeout(() => {
+                      // 检查新标签页的查询结果
+                      if (newTab.result && newTab.result.values) {
+                        console.log('新标签页查询结果:', newTab.result)
+                        console.log('结果集列数:', newTab.result.columns.length)
+                        console.log('结果集行数:', newTab.result.values[newTab.result.columns[0]].length)
+                        console.log('图表类型:', template.viewType)
+                        console.log('图表选项:', template.viewOptions)
+                      } else {
+                        console.error('新标签页查询结果为空或格式不正确')
+                      }
+                    }, 1000)
+                  }).catch(error => {
+                    console.error('新标签页查询执行失败:', error)
+                  })
+                }
+              }, 1000)
             })
-            this.$store.commit('setCurrentTabId', tabId)
-            console.log('配置加载成功:', config)
+          } else {
+            console.warn('报表模板数据不存在或格式错误，创建新的空模板:', data)
+            // 不显示错误信息，创建一个新的空模板
+            this.$store.dispatch('addTab', {
+              query: '',
+              name: '新报表',
+              viewType: 'table',
+              viewOptions: {},
+              rowLimit: '100',
+              dataSource: '1'
+            }).then(tabId => {
+              console.log('创建空模板标签页成功:', tabId)
+              this.$store.commit('setCurrentTabId', tabId)
+            })
           }
+        } else {
+          console.warn('加载报表模板失败，创建新的空模板:', response.status)
+          // 不显示错误信息，创建一个新的空模板
+          this.$store.dispatch('addTab', {
+            query: '',
+            name: '新报表',
+            viewType: 'table',
+            viewOptions: {},
+            rowLimit: '100',
+            dataSource: '1'
+          }).then(tabId => {
+            console.log('创建空模板标签页成功:', tabId)
+            this.$store.commit('setCurrentTabId', tabId)
+          })
         }
       } catch (error) {
-        console.error('加载配置失败:', error)
-        // 加载失败时不影响应用启动
+        console.warn('加载报表模板时发生错误，创建新的空模板:', error)
+        // 不显示错误信息，创建一个新的空模板
+        this.$store.dispatch('addTab', {
+          query: '',
+          name: '新报表',
+          viewType: 'table',
+          viewOptions: {},
+          rowLimit: '100',
+          dataSource: '1'
+        }).then(tabId => {
+          console.log('创建空模板标签页成功:', tabId)
+          this.$store.commit('setCurrentTabId', tabId)
+        })
       }
     }
   }

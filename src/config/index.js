@@ -7,7 +7,7 @@ export const config = {
     apiPrefix: '/soag/api',
     // API端点配置
     endpoints: {
-      executeSql: 'database/execute',
+      executeSql: 'database/query',
       // 查询报表相关接口
       inquiries: {
         list: 'inquiries/list',

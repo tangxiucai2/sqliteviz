@@ -1,74 +1,88 @@
 <template>
   <div v-show="isActive" class="tab-content-container">
-    <splitpanes
-      class="query-results-splitter"
-      horizontal
-      :before="{ size: topPaneSize, max: 100 }"
-      :after="{ size: 100 - topPaneSize, max: 100 }"
-      :default="{ before: 50, after: 50 }"
-    >
-      <template #left-pane>
-        <div :id="'above-' + tab.id" class="above" />
-      </template>
-      <template #right-pane>
-        <div :id="'bottom-' + tab.id" ref="bottomPane" class="bottomPane" />
-      </template>
-    </splitpanes>
-
-    <div :id="'hidden-' + tab.id" class="hidden-part" />
-
-    <teleport
-      defer
-      :to="enableTeleport ? `#${tab.layout.sqlEditor}-${tab.id}` : undefined"
-      :disabled="!enableTeleport"
-    >
-      <sql-editor
-        ref="sqlEditor"
-        v-model="tab.query"
-        :isGettingResults="tab.isGettingResults"
-        @switch-to="onSwitchView('sqlEditor', $event)"
-        @run="(dataSource) => tab.execute(dataSource)"
-      />
-    </teleport>
-
-    <teleport
-      defer
-      :to="enableTeleport ? `#${tab.layout.table}-${tab.id}` : undefined"
-      :disabled="!enableTeleport"
-    >
-      <run-result
-        :tab="tab"
-        :result="tab.result"
-        :isGettingResults="tab.isGettingResults"
-        :error="tab.error"
-        :time="tab.time"
-        @switch-to="onSwitchView('table', $event)"
-      />
-    </teleport>
-
-    <teleport
-      defer
-      :to="enableTeleport ? `#${tab.layout.dataView}-${tab.id}` : undefined"
-      :disabled="!enableTeleport"
-    >
+    <!-- 报表模式下只显示数据视图 -->
+    <div v-if="isReportMode" class="report-mode-content">
       <data-view
         ref="dataView"
         :data-source="(tab.result && tab.result.values) || null"
         :initOptions="tab.viewOptions"
         :initMode="tab.viewType"
-        @switch-to="onSwitchView('dataView', $event)"
+        :showViewSettings="false"
         @update="onDataViewUpdate"
       />
-    </teleport>
+    </div>
+    <!-- 非报表模式下显示完整界面 -->
+    <template v-else>
+      <splitpanes
+        class="query-results-splitter"
+        horizontal
+        :before="{ size: topPaneSize, max: 100 }"
+        :after="{ size: 100 - topPaneSize, max: 100 }"
+        :default="{ before: 50, after: 50 }"
+      >
+        <template #left-pane>
+          <div :id="'above-' + tab.id" class="above" />
+        </template>
+        <template #right-pane>
+          <div :id="'bottom-' + tab.id" ref="bottomPane" class="bottomPane" />
+        </template>
+      </splitpanes>
+
+      <div :id="'hidden-' + tab.id" class="hidden-part" />
+
+      <teleport
+        defer
+        :to="enableTeleport ? `#${tab.layout.sqlEditor}-${tab.id}` : undefined"
+        :disabled="!enableTeleport"
+      >
+        <sql-editor
+          ref="sqlEditor"
+          v-model="tab.query"
+          :isGettingResults="tab.isGettingResults"
+          @switch-to="onSwitchView('sqlEditor', $event)"
+          @run="onRun"
+        />
+      </teleport>
+
+      <teleport
+        defer
+        :to="enableTeleport ? `#${tab.layout.table}-${tab.id}` : undefined"
+        :disabled="!enableTeleport"
+      >
+        <run-result
+          :tab="tab"
+          :result="tab.result"
+          :isGettingResults="tab.isGettingResults"
+          :error="tab.error"
+          :time="tab.time"
+          @switch-to="onSwitchView('table', $event)"
+        />
+      </teleport>
+
+      <teleport
+        defer
+        :to="enableTeleport ? `#${tab.layout.dataView}-${tab.id}` : undefined"
+        :disabled="!enableTeleport"
+      >
+        <data-view
+          ref="dataView"
+          :data-source="(tab.result && tab.result.values) || null"
+          :initOptions="tab.viewOptions"
+          :initMode="tab.viewType"
+          @switch-to="onSwitchView('dataView', $event)"
+          @update="onDataViewUpdate"
+        />
+      </teleport>
+    </template>
   </div>
 </template>
 
 <script>
 import Splitpanes from '@/components/Common/Splitpanes'
-import SqlEditor from '@/components/SqlEditor'
 import DataView from '@/components/DataView'
 import RunResult from '@/components/RunResult'
-import { nextTick, computed } from 'vue'
+import SqlEditor from '@/components/SqlEditor'
+import { computed, nextTick } from 'vue'
 
 import events from '@/lib/utils/events'
 
@@ -86,7 +100,11 @@ export default {
     }
   },
   props: {
-    tab: Object
+    tab: Object,
+    isReportMode: {
+      type: Boolean,
+      default: false
+    }
   },
   emits: [],
   data() {
@@ -143,10 +161,33 @@ export default {
       events.send('inquiry.panel', null, { panel: to })
     },
     onDataViewUpdate() {
-      this.$store.commit('updateTab', {
-        tab: this.tab,
-        newValues: { isSaved: false }
-      })
+      // 从DataView组件获取最新的viewOptions
+      if (this.$refs.dataView) {
+        const viewOptions = this.$refs.dataView.getOptionsForSave()
+        this.$store.commit('updateTab', {
+          tab: this.tab,
+          newValues: {
+            isSaved: false,
+            viewOptions: viewOptions
+          }
+        })
+        console.log('更新标签页的viewOptions:', viewOptions)
+      } else {
+        this.$store.commit('updateTab', {
+          tab: this.tab,
+          newValues: { isSaved: false }
+        })
+      }
+    },
+    onRun(params) {
+      console.log('Tab组件收到run事件:', params)
+      if (params && typeof params === 'object') {
+        const { dataSource, query } = params
+        this.tab.execute(dataSource, query)
+      } else {
+        // 兼容旧的参数格式
+        this.tab.execute(params)
+      }
     }
   }
 }

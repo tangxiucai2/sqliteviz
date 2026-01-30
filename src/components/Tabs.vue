@@ -1,6 +1,6 @@
 <template>
   <div id="tabs">
-    <div v-if="!isEmbeddedMode && tabs.length > 0" id="tabs-header">
+    <div v-if="!isEmbeddedMode && !isReportMode && tabs.length > 0" id="tabs-header">
       <div
         v-for="(tab, index) in tabs"
         :key="index"
@@ -12,7 +12,7 @@
           <span v-if="tab.name">{{ tab.name }}</span>
           <span v-else class="tab-untitled">{{ tab.tempName }}</span>
         </div>
-        <div v-if="!isEmbeddedMode">
+        <div v-if="!isEmbeddedMode && !isReportMode">
           <close-icon
             class="close-icon"
             :size="10"
@@ -21,8 +21,8 @@
         </div>
       </div>
     </div>
-    <tab v-for="tab in tabs" :key="tab.id" :tab="tab" />
-    <div v-show="tabs.length === 0" id="start-guide">
+    <tab v-for="tab in tabs" :key="tab.id" :tab="tab" :is-report-mode="isReportMode" />
+    <div v-show="!isReportMode && tabs.length === 0" id="start-guide">
       <span class="link" @click="emitCreateTabEvent">创建</span>
       一个新查询或从
       <router-link class="link" to="/inquiries">查询列表</router-link>
@@ -30,10 +30,10 @@
     </div>
 
     <!--Close tab warning dialog  -->
-    <modal modalId="close-warn" class="dialog" contentStyle="width: 560px;">
+    <modal v-if="!isReportMode" modalId="close-warn" class="dialog" contentStyle="width: 560px;">
       <div class="dialog-header">
         关闭标签页
-        {{
+        {{ 
           closingTab !== null
             ? closingTab.name || `[${closingTab.tempName}]`
             : ''
@@ -42,7 +42,7 @@
       </div>
       <div class="dialog-body">
         您有未保存的更改。在关闭
-        {{
+        {{ 
           closingTab !== null
             ? closingTab.name || `[${closingTab.tempName}]`
             : ''
@@ -89,6 +89,9 @@ export default {
     },
     isEmbeddedMode() {
       return new URLSearchParams(window.location.search).get('embedded') === '1'
+    },
+    isReportMode() {
+      return new URLSearchParams(window.location.search).get('mode') === 'report'
     }
   },
   created() {
@@ -99,6 +102,11 @@ export default {
       eventBus.$emit('createNewInquiry')
     },
     leavingSqliteviz(event) {
+      // 在embedded模式下不显示刷新提示
+      if (this.isEmbeddedMode) {
+        return
+      }
+      
       if (this.tabs.some(tab => !tab.isSaved)) {
         event.preventDefault()
         event.returnValue = ''
