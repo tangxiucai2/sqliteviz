@@ -149,7 +149,25 @@ export default {
             console.log('处理后的查询:', processedQuery)
             console.log('数据源:', template.dataSource)
             
-            // 创建新标签页，设置布局为显示数据视图
+            // 根据viewType设置布局
+            let layout
+            if (template.viewType === 'table') {
+              // 表格视图，显示表格
+              layout = {
+                sqlEditor: 'above',
+                table: 'bottom',
+                dataView: 'hidden'
+              }
+            } else {
+              // 图表视图，显示数据视图
+              layout = {
+                sqlEditor: 'above',
+                table: 'hidden',
+                dataView: 'bottom'
+              }
+            }
+            
+            // 创建新标签页，设置布局
             this.$store.dispatch('addTab', {
               query: template.query,
               name: template.name || '报表',
@@ -168,11 +186,7 @@ export default {
               rowLimit: template.rowLimit || '100',
               customRowLimit: template.customRowLimit,
               dataSource: template.dataSource || '1',
-              layout: {
-                sqlEditor: 'above',
-                table: 'hidden',
-                dataView: 'bottom'
-              }
+              layout: layout
             }).then(tabId => {
               console.log('创建标签页成功:', tabId)
               this.$store.commit('setCurrentTabId', tabId)

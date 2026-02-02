@@ -4,15 +4,7 @@
 
     <div v-if="$slots.default" class="side-tool-bar-divider" />
 
-    <icon-button
-      ref="sqlEditorBtn"
-      :active="panel === 'sqlEditor'"
-      tooltip="切换到SQL编辑器面板"
-      tooltipPosition="top-left"
-      @click="$emit('switchTo', 'sqlEditor')"
-    >
-      <sql-editor-icon />
-    </icon-button>
+
 
     <icon-button
       ref="tableBtn"
@@ -37,10 +29,10 @@
 </template>
 
 <script>
-import IconButton from '@/components/Common/IconButton'
-import DataViewIcon from '@/components/svg/dataView'
-import SqlEditorIcon from '@/components/svg/sqlEditor'
-import TableIcon from '@/components/svg/table'
+import IconButton from '@/components/Common/IconButton';
+import DataViewIcon from '@/components/svg/dataView';
+import SqlEditorIcon from '@/components/svg/sqlEditor';
+import TableIcon from '@/components/svg/table';
 
 export default {
   name: 'SideToolBar',

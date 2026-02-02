@@ -16,7 +16,7 @@
       />
     </div>
     <!-- 非报表模式下显示侧边栏 -->
-    <side-tool-bar v-if="showViewSettings" panel="dataView" @switch-to="$emit('switchTo', $event)">
+    <side-tool-bar v-if="internalShowViewSettings" panel="dataView" @switch-to="$emit('switchTo', $event)">
       <icon-button
         ref="chartBtn"
         :active="mode === 'chart'"
@@ -49,10 +49,10 @@
 
       <icon-button
         ref="settingsBtn"
-        :active="showViewSettings"
-        tooltip="切换可视化设置可见性"
+        :active="internalShowViewSettings"
+        tooltip="图表设置"
         tooltipPosition="top-left"
-        @click="showViewSettings = !showViewSettings"
+        @click="internalShowViewSettings = !internalShowViewSettings"
       >
         <settings-icon />
       </icon-button>
@@ -98,19 +98,12 @@
       >
         <clipboard-icon />
       </icon-button>
-      <icon-button
-        ref="shareBtn"
-        tooltip="分享此可视化"
-        tooltipPosition="top-left"
-        @click="shareQuery"
-      >
-        <share-icon />
-      </icon-button>
+      
     </side-tool-bar>
 
     <!-- 非报表模式下显示加载对话框 -->
     <loading-dialog
-      v-if="showViewSettings"
+      v-if="internalShowViewSettings"
       v-model="showLoadingDialog"
       loadingMsg="正在渲染可视化..."
       successMsg="图片已准备就绪"
@@ -189,7 +182,7 @@ export default {
         graph: this.initMode === 'graph' ? this.initOptions : null
       },
       showLoadingDialog: false,
-      showViewSettings: this.showViewSettings
+      internalShowViewSettings: this.showViewSettings
     }
   },
   computed: {
@@ -230,7 +223,12 @@ export default {
       if (!this.$refs.viewComponent) {
         return null
       }
-      return this.$refs.viewComponent.getOptionsForSave()
+      // 检查viewComponent是否有getOptionsForSave方法
+      if (typeof this.$refs.viewComponent.getOptionsForSave === 'function') {
+        return this.$refs.viewComponent.getOptionsForSave()
+      }
+      // 如果没有这个方法，返回null
+      return null
     },
     async prepareCopy() {
       if ('ClipboardItem' in window) {

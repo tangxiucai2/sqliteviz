@@ -62,8 +62,8 @@
       <multiselect
         v-model="aggregator"
         class="sqliteviz-select short aggregator"
-        :options="aggregators"
-        label="名称"
+        :options="availableAggregators"
+        label="name"
         trackBy="name"
         :closeOnSelect="true"
         :showLabels="false"
@@ -131,15 +131,15 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import Multiselect from 'vue-multiselect'
+import $ from 'jquery';
+import Multiselect from 'vue-multiselect';
 import {
-  aggregators,
-  renderers,
-  twoValAggregators,
-  zeroValAggregators
-} from '../pivotHelper'
-import PivotSortBtn from './PivotSortBtn'
+    aggregators,
+    renderers,
+    twoValAggregators,
+    zeroValAggregators
+} from '../pivotHelper';
+import PivotSortBtn from './PivotSortBtn';
 
 export default {
   name: 'PivotUi',
@@ -193,7 +193,9 @@ export default {
     renderers() {
       return renderers
     },
-    aggregators() {
+    availableAggregators() {
+      // 打印聚合函数列表，查看哪些没有被翻译
+      console.log('聚合函数列表:', aggregators)
       return aggregators
     },
     rowsToSelect() {

@@ -78,15 +78,7 @@
         <view-cell-value-icon />
       </icon-button>
 
-      <icon-button
-        ref="shareBtn"
-        :disabled="!result"
-        tooltip="分享此结果"
-        tooltipPosition="top-left"
-        @click="shareQuery"
-      >
-        <share-icon />
-      </icon-button>
+
     </side-tool-bar>
 
     <loading-dialog

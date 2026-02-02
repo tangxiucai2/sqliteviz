@@ -158,6 +158,19 @@ export default {
       this.tab.layout[from] = this.tab.layout[to]
       this.tab.layout[to] = fromPosition
 
+      // 当切换到数据视图时，更新viewType为chart
+      if (to === 'dataView') {
+        this.$store.commit('updateTab', {
+          tab: this.tab,
+          newValues: { viewType: 'chart' }
+        })
+        
+        // 确保DataView组件的mode被设置为'chart'
+        if (this.$refs.dataView) {
+          this.$refs.dataView.mode = 'chart'
+        }
+      }
+
       events.send('inquiry.panel', null, { panel: to })
     },
     onDataViewUpdate() {

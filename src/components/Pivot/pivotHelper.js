@@ -1,8 +1,8 @@
+import html2canvas from 'html2canvas'
 import $ from 'jquery'
 import 'pivottable'
 import 'pivottable/dist/export_renderers.js'
 import 'pivottable/dist/plotly_renderers.js'
-import html2canvas from 'html2canvas'
 
 export const zeroValAggregators = [
   'Count',
@@ -82,7 +82,16 @@ const rendererNameMap = {
   'Plotly 3D Scatter': 'Plotly 3D散点图',
   'Plotly 3D Surface': 'Plotly 3D曲面图',
   'Plotly Parallel Categories': 'Plotly平行类别图',
-  'Custom chart': '自定义图表'
+  'Custom chart': '自定义图表',
+  'Table Barchart': '表格柱状图',
+  'Horizontal Bar Chart': '水平柱状图',
+  'Horizontal Stacked Bar Chart': '水平堆叠柱状图',
+  'Bar Chart': '柱状图',
+  'Line Chart': '折线图',
+  'Stacked Bar Chart': '堆叠柱状图',
+  'Area Chart': '面积图',
+  'Scatter Chart': '散点图',
+  'Multiple Pie Chart': '多饼图'
 }
 
 export const renderers = Object.keys($.pivotUtilities.renderers).map(key => {
@@ -141,11 +150,18 @@ const aggregatorNameMap = {
   '80% Lower Bound': '80%下限',
   '80% Lower Bound as Fraction of Total': '80%下限占总计的比例',
   '80% Lower Bound as Fraction of Rows': '80%下限占行的比例',
-  '80% Lower Bound as Fraction of Columns': '80%下限占列的比例'
+  '80% Lower Bound as Fraction of Columns': '80%下限占列的比例',
+  'Count Unique Values': '唯一值计数',
+  'List Unique Values': '唯一值列表',
+  'Integer Sum': '整数求和',
+  'Sample Variance': '样本方差',
+  'Sample Standard Deviation': '样本标准差'
 }
 
 export const aggregators = Object.keys($.pivotUtilities.aggregators).map(
   key => {
+    // 打印所有聚合函数键，查看哪些没有被翻译
+    console.log('聚合函数键:', key)
     return {
       name: aggregatorNameMap[key] || key,
       fun: $.pivotUtilities.aggregators[key]
