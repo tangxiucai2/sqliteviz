@@ -1,9 +1,13 @@
 import Tab from '@/lib/tab'
 import { nanoid } from 'nanoid'
-import { config } from '@/config'
+import config from '../config'
 
-const { baseUrl, apiPrefix, endpoints } = config.backend
-const buildUrl = (path) => `${baseUrl}${apiPrefix}/${path}`
+const buildUrl = (path) => {
+  const { baseUrl, apiPrefix } = config.backend
+  return `${baseUrl}${apiPrefix}/${path}`
+}
+
+const { endpoints } = config.backend
 
 export default {
   async addTab({ state }, inquiry = {}) {

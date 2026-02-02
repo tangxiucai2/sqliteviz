@@ -1,12 +1,16 @@
-import { nanoid } from 'nanoid'
-import fu from '@/lib/utils/fileIo'
-import events from '@/lib/utils/events'
-import migration from './_migrations'
 import { config } from '@/config'
+import events from '@/lib/utils/events'
+import fu from '@/lib/utils/fileIo'
+import { nanoid } from 'nanoid'
+import migration from './_migrations'
 
 const migrate = migration._migrate
-const { baseUrl, apiPrefix, endpoints } = config.backend
-const buildUrl = (path) => `${baseUrl}${apiPrefix}/${path}`
+const buildUrl = (path) => {
+  const { baseUrl, apiPrefix } = config.backend
+  return `${baseUrl}${apiPrefix}/${path}`
+}
+
+const { endpoints } = config.backend
 
 export default {
   version: 2,

@@ -26,16 +26,16 @@
 </template>
 
 <script>
+import Chart from '@/components/Chart'
+import chartHelper from '@/lib/chartHelper'
+import events from '@/lib/utils/events'
 import fIo from '@/lib/utils/fileIo'
 import $ from 'jquery'
 import 'pivottable'
 import 'pivottable/dist/pivot.css'
+import plotly from 'plotly.js-dist-min'
 import PivotUi from './PivotUi/index.vue'
 import pivotHelper from './pivotHelper'
-import Chart from '@/components/Chart'
-import chartHelper from '@/lib/chartHelper'
-import events from '@/lib/utils/events'
-import plotly from 'plotly.js'
 
 export default {
   name: 'Pivot',

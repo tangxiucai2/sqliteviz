@@ -29,6 +29,7 @@
     "papaparse": "^5.4.1",
     "pivottable": "^2.23.0",
     "plotly.js": "^2.35.2",
+    "plotly.js-dist-min": "^3.3.1",
     "react": "^16.14.0",
     "react-chart-editor": "^0.46.1",
     "react-dom": "^16.14.0",

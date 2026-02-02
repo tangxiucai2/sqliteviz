@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import plotly from 'plotly.js'
+import plotly from 'plotly.js-dist-min'
 import * as dereference from 'react-chart-editor/lib/lib/dereference'
 
 export function getOptionsFromDataSources(dataSources) {

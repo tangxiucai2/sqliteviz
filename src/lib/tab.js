@@ -58,6 +58,11 @@ export default class Tab {
       
       console.log('执行的SQL:', queryToExecute)
       console.log('数据源:', finalDataSource)
+      
+      if (!db) {
+        throw new Error('数据库未初始化')
+      }
+      
       this.result = await db.execute(queryToExecute + ';', finalDataSource)
       this.time = time.getPeriod(start, new Date())
 
@@ -79,7 +84,6 @@ export default class Tab {
 
       events.send('query.run', 0, { status: 'error' })
     }
-    db.refreshSchema()
     this.isGettingResults = false
   }
 }

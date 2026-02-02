@@ -55,11 +55,8 @@ export default {
     }
   },
   async beforeCreate() {
-    const schema = this.$store.state.db.schema
-    if (
-      (!schema || schema.length === 0) &&
-      this.$store.state.tabs.length === 0
-    ) {
+    // 简化逻辑，只根据tabs长度决定是否创建新标签页
+    if (this.$store.state.tabs.length === 0) {
       const stmt = ''
 
       const tabId = await this.$store.dispatch('addTab', { query: stmt })

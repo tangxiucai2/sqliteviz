@@ -8,9 +8,6 @@
         <tree-chevron v-show="schema.length > 0" :expanded="schemaVisible" />
         {{ dbName }}
       </div>
-      <db-uploader id="db-edit" type="small" />
-      <export-icon tooltip="导出数据库" @click="exportToFile" />
-      <add-table-icon @click="addCsvJson" />
       <button v-if="isEmbeddedMode" class="save-config-btn" @click="saveConfig" tooltip="保存配置">
         保存
       </button>
@@ -23,84 +20,40 @@
         :columns="table.columns"
       />
     </div>
-
-    <!--Parse csv or json dialog  -->
-    <csv-json-import
-      ref="addCsvJson"
-      :file="file"
-      :db="$store.state.db"
-      dialogName="addCsvJson"
-    />
   </div>
 </template>
 
 <script>
-import TextField from '@/components/Common/TextField'
-import CsvJsonImport from '@/components/CsvJsonImport'
-import DbUploader from '@/components/DbUploader'
-import AddTableIcon from '@/components/svg/addTable'
-import ExportIcon from '@/components/svg/export'
-import TreeChevron from '@/components/svg/treeChevron'
-import events from '@/lib/utils/events'
-import fIo from '@/lib/utils/fileIo'
-import TableDescription from './TableDescription'
+import TextField from '@/components/Common/TextField';
+import TreeChevron from '@/components/svg/treeChevron';
+import TableDescription from './TableDescription';
 
 export default {
   name: 'Schema',
   components: {
     TableDescription,
     TextField,
-    TreeChevron,
-    DbUploader,
-    ExportIcon,
-    AddTableIcon,
-    CsvJsonImport
+    TreeChevron
   },
   data() {
     return {
       schemaVisible: true,
-      filter: null,
-      file: null
+      filter: null
     }
   },
   computed: {
     schema() {
-      if (!this.$store.state.db.schema) {
-        return []
-      }
-
-      return !this.filter
-        ? this.$store.state.db.schema
-        : this.$store.state.db.schema.filter(
-            table =>
-              table.name.toUpperCase().indexOf(this.filter.toUpperCase()) !== -1
-          )
+      // 返回空数组，因为使用后端API
+      return []
     },
     dbName() {
-      return this.$store.state.db.dbName
+      return 'Database'
     },
     isEmbeddedMode() {
       return new URLSearchParams(window.location.search).get('embedded') === '1'
     }
   },
   methods: {
-    exportToFile() {
-      this.$store.state.db.export(`${this.dbName}.sqlite`)
-    },
-    async addCsvJson() {
-      this.file = await fIo.getFileFromUser('.csv,.json,.ndjson')
-      await this.$nextTick()
-      const csvJsonImportModal = this.$refs.addCsvJson
-      csvJsonImportModal.reset()
-      await csvJsonImportModal.preview()
-      csvJsonImportModal.open()
-
-      const isJson = fIo.isJSON(this.file) || fIo.isNDJSON(this.file)
-      events.send('database.import', this.file.size, {
-        from: isJson ? 'json' : 'csv',
-        new_db: false
-      })
-    },
     async saveConfig() {
       const currentTab = this.$store.state.currentTab
       if (!currentTab) {

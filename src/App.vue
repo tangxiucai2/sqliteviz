@@ -35,6 +35,15 @@ export default {
     }
   },
   created() {
+    // 初始化数据库实例
+    import('@/lib/database').then(({ default: database }) => {
+      if (!this.$store.state.db) {
+        const newDb = database.getNewDatabase()
+        newDb.loadDb()
+        this.$store.commit('setDb', newDb)
+      }
+    })
+    
     // 非嵌入模式下才加载存储的查询
     if (!this.isEmbeddedMode) {
       this.$store.commit('setInquiries', storedInquiries.getStoredInquiries())

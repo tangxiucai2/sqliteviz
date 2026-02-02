@@ -52,7 +52,11 @@ export default defineConfig({
           } else {
             return null
           }
-        }
+        },
+        // 确保输出的文件路径使用相对路径
+        entryFileNames: 'assets/js/[name].[hash].js',
+        chunkFileNames: 'assets/js/[name].[hash].js',
+        assetFileNames: 'assets/[ext]/[name].[hash].[ext]'
       }
     }
   }

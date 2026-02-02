@@ -34,8 +34,7 @@ import ReactPlotlyEditorWithPlotRef from '@/lib/ReactPlotlyEditorWithPlotRef.jsx
 import chartHelper from '@/lib/chartHelper'
 import events from '@/lib/utils/events'
 import fIo from '@/lib/utils/fileIo'
-import plotly from 'plotly.js'
-import zhCN from 'plotly.js/lib/locales/zh-cn'
+import plotly from 'plotly.js-dist-min'
 import * as dereference from 'react-chart-editor/lib/lib/dereference'
 import 'react-chart-editor/lib/react-chart-editor.css'
 import { applyPureReactInVue } from 'veaury'
@@ -849,8 +848,6 @@ export default {
     }
   },
   created() {
-    // 注册中文本地化
-    plotly.register(zhCN)
     // https://github.com/plotly/plotly.js/issues/4555
     plotly.setPlotConfig({
       notifyOnLogging: 1
