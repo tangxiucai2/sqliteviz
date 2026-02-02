@@ -161,7 +161,7 @@ const aggregatorNameMap = {
 export const aggregators = Object.keys($.pivotUtilities.aggregators).map(
   key => {
     // 打印所有聚合函数键，查看哪些没有被翻译
-    console.log('聚合函数键:', key)
+   // console.log('聚合函数键:', key)
     return {
       name: aggregatorNameMap[key] || key,
       fun: $.pivotUtilities.aggregators[key]
