@@ -46,3 +46,7 @@ console.error = (...args) => {
   // Otherwise, call the original error function
   originalError.apply(console, args)
 }
+
+// Export the original functions for testing
+export { originalError, originalWarn }
+

@@ -54,9 +54,11 @@ export default {
     if (this.isEmbeddedMode) {
       const urlParams = new URLSearchParams(window.location.search)
       const reportId = urlParams.get('id')
+      const dsParam = urlParams.get('ds')
       if (reportId) {
         console.log('检测到报表ID:', reportId)
-        this.loadReportTemplate(reportId)
+        console.log('检测到数据源参数ds:', dsParam)
+        this.loadReportTemplate(reportId, dsParam)
       }
     }
     
@@ -77,7 +79,7 @@ export default {
     })
   },
   methods: {
-    async loadReportTemplate(reportId) {
+    async loadReportTemplate(reportId, dsParam) {
       try {
         console.log('加载报表模板:', reportId)
         // 调用后端接口获取报表模板
@@ -185,7 +187,7 @@ export default {
               },
               rowLimit: template.rowLimit || '100',
               customRowLimit: template.customRowLimit,
-              dataSource: template.dataSource || '1',
+              dataSource: dsParam || template.dataSource || '1',
               layout: layout
             }).then(tabId => {
               console.log('创建标签页成功:', tabId)
@@ -201,7 +203,7 @@ export default {
                 if (newTab) {
                   console.log('获取新标签页成功，执行查询...')
                   // 在新标签页中执行查询
-                  newTab.execute(template.dataSource || '1', processedQuery).then(() => {
+                  newTab.execute(dsParam || template.dataSource || '1', processedQuery).then(() => {
                     console.log('新标签页查询执行完成')
                     
                     // 等待查询结果处理完成

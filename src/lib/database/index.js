@@ -49,7 +49,7 @@ class Database {
     this.schema = []
   }
 
-  async execute(commands) {
+  async execute(commands, dataSource) {
     try {
       const { baseUrl, apiPrefix, endpoints } = config.backend
       const apiUrl = `${baseUrl}${apiPrefix}/${endpoints.executeSql}`
@@ -61,7 +61,8 @@ class Database {
         },
         body: JSON.stringify({
           sql: commands,
-          params: []
+          params: [],
+          ds: dataSource || '1'
         })
       })
 

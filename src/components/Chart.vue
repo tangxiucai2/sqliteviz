@@ -927,12 +927,33 @@ export default {
       fIo.downloadFromUrl(url, 'chart')
     },
 
-    saveAsHtml() {
-      fIo.exportToFile(
-        chartHelper.getHtml(this.state),
-        'chart.html',
-        'text/html'
-      )
+    async saveAsHtml() {
+      try {
+        // 获取HTML内容
+        const htmlContent = chartHelper.getHtml(this.state)
+        
+        // 读取本地的plotly.js文件
+        const plotlyResponse = await fetch('/plotly.js')
+        const plotlyContent = await plotlyResponse.text()
+        
+        // 创建压缩包
+        const files = [
+          {
+            name: 'chart.html',
+            content: htmlContent
+          },
+          {
+            name: 'plotly.js',
+            content: plotlyContent
+          }
+        ]
+        
+        // 生成压缩包并下载
+        fIo.exportToZip(files, 'chart')
+      } catch (error) {
+        console.error('导出HTML时发生错误:', error)
+        alert('导出HTML失败，请重试')
+      }
     },
     prepareCopy(type = 'png') {
       return chartHelper.getImageDataUrl(this.$refs.plotlyEditor.$el, type)

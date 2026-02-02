@@ -88,5 +88,34 @@ export default {
       }
       fileReader.readAsArrayBuffer(file)
     })
+  },
+
+  async exportToZip(files, fileName) {
+    try {
+      // 动态导入JSZip库
+      const { default: JSZip } = await import('jszip')
+      const zip = new JSZip()
+      
+      // 添加文件到压缩包
+      files.forEach(file => {
+        zip.file(file.name, file.content)
+      })
+      
+      // 生成压缩包
+      const zipContent = await zip.generateAsync({ type: 'blob' })
+      const url = URL.createObjectURL(zipContent)
+      
+      // 下载压缩包
+      const downloader = document.createElement('a')
+      downloader.href = url
+      downloader.download = `${fileName}.zip`
+      downloader.click()
+      
+      // 清理
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('生成压缩包时发生错误:', error)
+      throw error
+    }
   }
 }
