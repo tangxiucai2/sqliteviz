@@ -36,6 +36,7 @@
         <pivot-icon />
       </icon-button>
       <icon-button
+        v-show="false"
         ref="graphBtn"
         :active="mode === 'graph'"
         tooltip="切换到图形"

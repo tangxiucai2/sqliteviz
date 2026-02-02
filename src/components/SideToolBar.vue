@@ -1,11 +1,5 @@
 <template>
   <div class="side-tool-bar">
-    <slot />
-
-    <div v-if="$slots.default" class="side-tool-bar-divider" />
-
-
-
     <icon-button
       ref="tableBtn"
       :active="panel === 'table'"
@@ -25,6 +19,10 @@
     >
       <data-view-icon />
     </icon-button>
+
+    <div v-if="$slots.default" class="side-tool-bar-divider" />
+
+    <slot />
   </div>
 </template>
 
