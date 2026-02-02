@@ -10,7 +10,7 @@
         @click="browse"
       >
         <div class="text">
-          拖放数据库、CSV、JSON或NDJSON文件到此处，或点击从您的电脑选择文件。
+          拖放CSV、JSON或NDJSON文件到此处，或点击从您的电脑选择文件。
         </div>
       </div>
     </div>
@@ -54,11 +54,11 @@
 </template>
 
 <script>
-import fIo from '@/lib/utils/fileIo'
+import CsvJsonImport from '@/components/CsvJsonImport'
 import ChangeDbIcon from '@/components/svg/changeDb'
 import database from '@/lib/database'
-import CsvJsonImport from '@/components/CsvJsonImport'
 import events from '@/lib/utils/events'
+import fIo from '@/lib/utils/fileIo'
 
 export default {
   name: 'DbUploader',
