@@ -14,6 +14,9 @@ http://localhost:5173/
 http://localhost:5173/workspace
 
 
+# 开发
+
+npm run dev
 
 # 打包
 
