@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLiteViz iframe 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #119dff;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+        }
+        .test-section h2 {
+            color: #506784;
+            margin-bottom: 15px;
+        }
+        .iframe-container {
+            border: 1px solid #e4e7ed;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 600px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .api-config {
+            margin-bottom: 20px;
+        }
+        .api-config label {
+            display: block;
+            margin-bottom: 8px;
+            color: #506784;
+        }
+        .api-config input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .api-config button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #119dff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .api-config button:hover {
+            background-color: #0088e6;
+        }
+        .usage-example {
+            background-color: #f0f2f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .usage-example h3 {
+            color: #506784;
+            margin-bottom: 10px;
+        }
+        .usage-example code {
+            background-color: #e6f7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+        .usage-example pre {
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SQLiteViz iframe 测试</h1>
+        
+        <div class="test-section">
+            <h2>iframe 嵌入测试</h2>
+            
+            <div class="api-config">
+                <label for="apiBaseUrl">后端接口地址：</label>
+                <input type="text" id="apiBaseUrl" value="http://localhost:5200/soag/api" placeholder="输入后端接口地址">
+                <button onclick="updateIframe()">更新 iframe</button>
+            </div>
+            
+            <div class="iframe-container">
+                <iframe id="sqliteviz-iframe" src="dist/index.html?apiBaseUrl=http://localhost:5200/soag/api"></iframe>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>使用说明</h2>
+            
+            <div class="usage-example">
+                <h3>基本用法</h3>
+                <p>在 iframe 的 src URL 中传递后端接口地址：</p>
+                <pre><code>&lt;iframe 
+  src="dist/index.html?apiBaseUrl=http://your-backend-server:5200/soag/api" 
+  width="100%" 
+  height="600px"
+  frameborder="0"
+&gt;&lt;/iframe&gt;</code></pre>
+            </div>
+            
+            <div class="usage-example">
+                <h3>编辑模式</h3>
+                <pre><code>&lt;iframe 
+  src="dist/index.html?apiBaseUrl=http://your-backend-server:5200/soag/api&amp;embedded=1&amp;id=1#/workspace" 
+  width="100%" 
+  height="600px"
+  frameborder="0"
+&gt;&lt;/iframe&gt;</code></pre>
+            </div>
+            
+            <div class="usage-example">
+                <h3>预览模式</h3>
+                <pre><code>&lt;iframe 
+  src="dist/index.html?apiBaseUrl=http://your-backend-server:5200/soag/api&amp;embedded=1&amp;id=1&amp;mode=report#/workspace" 
+  width="100%" 
+  height="600px"
+  frameborder="0"
+&gt;&lt;/iframe&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateIframe() {
+            const apiBaseUrl = document.getElementById('apiBaseUrl').value;
+            const iframe = document.getElementById('sqliteviz-iframe');
+            iframe.src = `dist/index.html?apiBaseUrl=${encodeURIComponent(apiBaseUrl)}`;
+        }
+    </script>
+</body>
+</html>

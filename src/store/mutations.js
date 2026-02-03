@@ -88,5 +88,32 @@ export default {
   
   setDashboards(state, value) {
     state.dashboards = Array.isArray(value) ? value : []
+  },
+  
+  clearTabs(state) {
+    // 清理所有标签页
+    if (state.tabs && Array.isArray(state.tabs)) {
+      // 对每个Tab实例调用destroy方法，确保资源被正确清理
+      state.tabs.forEach(tab => {
+        if (tab && typeof tab.destroy === 'function') {
+          tab.destroy()
+        }
+      })
+    }
+    state.tabs = []
+    state.currentTabId = null
+    state.currentTab = null
+    state.untitledLastIndex = 0
+  },
+  clearDb(state) {
+    // 清理数据库实例
+    if (state.db) {
+      try {
+        state.db.shutDown()
+      } catch (error) {
+        console.warn('Error shutting down database:', error)
+      }
+      state.db = null
+    }
   }
 }

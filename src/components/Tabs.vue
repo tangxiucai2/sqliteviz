@@ -97,6 +97,11 @@ export default {
   created() {
     window.addEventListener('beforeunload', this.leavingSqliteviz)
   },
+  
+  beforeUnmount() {
+    // 移除beforeunload事件监听器，避免内存泄漏
+    window.removeEventListener('beforeunload', this.leavingSqliteviz)
+  },
   methods: {
     emitCreateTabEvent() {
       eventBus.$emit('createNewInquiry')

@@ -16,7 +16,7 @@
       />
     </div>
     <!-- 非报表模式下显示侧边栏 -->
-    <side-tool-bar v-if="internalShowViewSettings" panel="dataView" @switch-to="$emit('switchTo', $event)">
+    <side-tool-bar v-if="internalShowViewSettings" :showToggleButtons="showToggleButtons" panel="dataView" @switch-to="$emit('switchTo', $event)">
       <icon-button
         ref="chartBtn"
         :active="mode === 'chart'"
@@ -133,6 +133,7 @@ import PivotIcon from '@/components/svg/pivot'
 import PngIcon from '@/components/svg/png'
 import SettingsIcon from '@/components/svg/settings.vue'
 import ShareIcon from '@/components/svg/share'
+import eventBus from '@/lib/eventBus'
 import cIo from '@/lib/utils/clipboardIo'
 import events from '@/lib/utils/events'
 import time from '@/lib/utils/time'
@@ -161,6 +162,10 @@ export default {
     initOptions: Object,
     initMode: String,
     showViewSettings: {
+      type: Boolean,
+      default: true
+    },
+    showToggleButtons: {
       type: Boolean,
       default: true
     }
@@ -198,6 +203,27 @@ export default {
       this.exportToClipboardEnabled = true
       this.initOptionsByMode[oldMode] = this.getOptionsForSave()
     }
+  },
+  beforeUnmount() {
+    // 清理组件引用
+    if (this.$refs.viewComponent) {
+      // 如果viewComponent有自己的清理方法，调用它
+      if (typeof this.$refs.viewComponent.beforeUnmount === 'function') {
+        try {
+          this.$refs.viewComponent.beforeUnmount()
+        } catch (error) {
+          console.warn('Error calling viewComponent beforeUnmount:', error)
+        }
+      }
+      this.$refs.viewComponent = null
+    }
+    // 清理状态数据
+    this.initOptionsByMode = { chart: null, pivot: null, graph: null }
+    this.dataToCopy = null
+    // 清理事件监听器
+    eventBus.$off('inquirySaved')
+    // 清理其他引用
+    this.$refs = null
   },
   methods: {
     async saveAsPng() {

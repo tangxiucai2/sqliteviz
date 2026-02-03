@@ -1,6 +1,101 @@
 import { nanoid } from 'nanoid'
 import plotly from 'plotly.js-dist-min'
+import zhCN from 'plotly.js/lib/locales/zh-cn'
 import * as dereference from 'react-chart-editor/lib/lib/dereference'
+
+// 注册官方中文本地化
+plotly.register(zhCN)
+
+export function applyChineseLocalization(plotlyInstance) {
+  // 确保Plotly包含locales对象
+  if (!plotlyInstance.locales) {
+    plotlyInstance.locales = {}
+  }
+  
+  // 直接设置中文本地化数据
+  plotlyInstance.locales['zh-CN'] = {
+    name: 'zh-CN',
+    dictionary: {
+      'Autoscale': '自动缩放',
+      'Box Select': '矩形框选',
+      'Click to enter Colorscale title': '点击输入色阶的标题',
+      'Click to enter Component A title': '点击输入组件A的标题',
+      'Click to enter Component B title': '点击输入组件B的标题',
+      'Click to enter Component C title': '点击输入组件C的标题',
+      'Click to enter Plot title': '点击输入图表的标题',
+      'Click to enter X axis title': '点击输入X轴的标题',
+      'Click to enter Y axis title': '点击输入Y轴的标题',
+      'Compare data on hover': '悬停时比较数据',
+      'Double-click on legend to isolate one trace': '双击图例来突显对应轨迹',
+      'Double-click to zoom back out': '双击返回缩小显示',
+      'Download plot as a png': '下载图表为PNG格式',
+      'Download plot': '下载图表',
+      'Edit in Chart Studio': '在Chart Studio中编辑',
+      'IE only supports svg.  Changing format to svg.': 'IE只支持SVG。转换格式为SVG。',
+      'Lasso Select': '套索选择',
+      'Orbital rotation': '轨道旋转',
+      'Pan': '平移',
+      'Produced with Plotly.js': '由Plotly.js生成',
+      'Reset': '重置',
+      'Reset axes': '重置轴',
+      'Reset camera to default': '重置镜头视角为默认状态',
+      'Reset camera to last save': '重置镜头视角为上次保存状态',
+      'Reset view': '重置视图',
+      'Reset views': '重置视图',
+      'Show closest data on hover': '悬停时显示最近的数据',
+      'Snapshot succeeded': '生成快照成功',
+      'Sorry, there was a problem downloading your snapshot!': '抱歉，下载快照出现问题！',
+      'Taking snapshot - this may take a few seconds': '正在生成快照 - 可能需要几秒钟',
+      'Zoom': '缩放',
+      'Zoom in': '放大',
+      'Zoom out': '缩小',
+      'zoom2d': '缩放',
+      'pan2d': '平移',
+      'select2d': '矩形框选',
+      'lasso2d': '套索选择',
+      'zoomIn2d': '放大',
+      'zoomOut2d': '缩小',
+      'autoScale2d': '自动缩放',
+      'resetScale2d': '重置缩放',
+      'toggleSpikelines': '切换峰值线',
+      'hoverClosestCartesian': '显示最近数据',
+      'hoverCompareCartesian': '比较数据'
+    },
+    format: {
+      days: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+      shortDays: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+      months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+      shortMonths: ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'],
+      date: '%Y-%m-%d'
+    }
+  }
+  
+  // 设置默认locale
+  if (plotlyInstance.setPlotConfig) {
+    plotlyInstance.setPlotConfig({
+      locale: 'zh-CN'
+    })
+  }
+}
+
+// 为默认导入的plotly实例应用中文本地化
+applyChineseLocalization(plotly)
+
+// 禁用外部资源加载，避免加载Google Fonts
+if (plotly.setPlotConfig) {
+  plotly.setPlotConfig({
+    notifyOnLogging: 1,
+    // 禁用外部资源加载，避免加载Google Fonts
+    showLink: false,
+    displayModeBar: true,
+    // 禁用自动加载Google Fonts
+    modeBarButtonsToRemove: ['sendDataToCloud'],
+    // 使用本地字体，不加载外部字体
+    font: {
+      family: 'Open Sans'
+    }
+  })
+}
 
 export function getOptionsFromDataSources(dataSources) {
   if (!dataSources) {

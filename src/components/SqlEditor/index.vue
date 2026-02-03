@@ -59,7 +59,7 @@
         </div>
         <div class="data-source-selector">
           <label class="selector-label">数据源：</label>
-          <select v-model="dataSource" class="selector">
+          <select v-model="localDataSource" class="selector">
             <option value="1">业务库</option>
             <option value="2">事件库</option>
           </select>
@@ -114,12 +114,19 @@ export default {
     ShareIcon,
     ExportIcon
   },
-  props: { modelValue: String, isGettingResults: Boolean },
+  props: { 
+    modelValue: String, 
+    isGettingResults: Boolean,
+    dataSource: {
+      type: String,
+      default: '1'
+    }
+  },
   emits: ['update:modelValue', 'run', 'switchTo'],
   data() {
     return {
       query: this.modelValue,
-      dataSource: '1', // 默认选择业务库
+      localDataSource: this.dataSource, // 使用props中的dataSource作为默认值
       rowLimit: '100', // 默认限制100行
       customRowLimit: '', // 自定义行数
       selectedDatabase: '业务库',
@@ -136,6 +143,13 @@ export default {
         extraKeys: { 'Ctrl-Space': showHintOnDemand }
       }
     }
+  },
+  created() {
+    console.log('SqlEditor组件创建，接收到的dataSource:', this.dataSource)
+    console.log('SqlEditor组件创建，localDataSource初始值:', this.localDataSource)
+    // 手动设置localDataSource的值，确保它使用的是已经初始化好的props值
+    this.localDataSource = this.dataSource
+    console.log('SqlEditor组件创建，localDataSource更新后的值:', this.localDataSource)
   },
   computed: {
     runDisabled() {
@@ -186,55 +200,21 @@ export default {
   watch: {
     query() {
       this.$emit('update:modelValue', this.query)
+    },
+    // 监听dataSource属性的变化，更新内部的localDataSource变量
+    dataSource: {
+      handler(newValue) {
+        if (newValue) {
+          this.localDataSource = newValue
+        }
+      },
+      immediate: true
     }
   },
   methods: {
     onChange: time.debounce((value, editor) => showHint(editor), 400),
     focus() {
       this.$refs.cm.cminstance?.focus()
-    },
-    async shareQuery() {
-      try {
-        // Get current tab
-        const currentTabId = this.$store.state.currentTabId
-        const currentTab = this.$store.state.tabs.find(
-          tab => tab.id === currentTabId
-        )
-
-        if (!currentTab) return
-
-        // Generate shareable URL
-        let shareId
-        if (currentTab.isSaved && currentTab.inquiryId) {
-          // For saved queries, use the inquiry ID as hash
-          shareId = currentTab.inquiryId
-        } else {
-          // For unsaved queries, generate a random ID
-          shareId = nanoid(10)
-        }
-
-        // Create the URL - using window.location.origin to get the base URL
-        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`
-
-        // Copy to clipboard
-        await navigator.clipboard.writeText(shareUrl)
-
-        // Show notification (using existing event system or alert for simplicity)
-        alert(`分享链接已复制到剪贴板:\n${shareUrl}`)
-      } catch (error) {
-        console.error('Error sharing query:', error)
-        alert('复制分享链接失败，请重试。')
-      }
-    },
-    createNewInquiry() {
-      this.$store.dispatch('addTab').then(id => {
-        this.$store.commit('setCurrentTabId', id)
-        if (this.$route.path !== '/workspace') {
-          this.$router.push('/workspace')
-        }
-      })
-
-      events.send('inquiry.create', null, { auto: false })
     },
     onSave(skipConcurrentEditingCheck = false) {
       if (!this.currentInquiryTab) return
@@ -327,7 +307,7 @@ export default {
               updatedAt: new Date().toISOString(),
               rowLimit: this.rowLimit,
               customRowLimit: this.customRowLimit,
-              dataSource: this.dataSource
+              dataSource: this.localDataSource
             }
           ]
         }
@@ -451,7 +431,7 @@ export default {
           updatedAt: currentTab.updatedAt || new Date().toISOString(),
           rowLimit: this.rowLimit,
           customRowLimit: this.customRowLimit,
-          dataSource: this.dataSource
+          dataSource: this.localDataSource
         }
 
         // Export the inquiry as a report template
@@ -493,9 +473,9 @@ export default {
         }
       }
       
-      console.log('执行参数:', this.dataSource, processedQuery)
+      console.log('执行参数:', this.localDataSource, processedQuery)
       // 执行查询
-      this.$emit('run', { dataSource: this.dataSource, query: processedQuery })
+      this.$emit('run', { dataSource: this.localDataSource, query: processedQuery })
     },
     importTemplate() {
       // 触发文件选择对话框
@@ -614,10 +594,9 @@ export default {
               )
               
               if (newTab) {
-                console.log('获取新标签页成功，执行查询...')
                 // 只在新标签页中执行一次查询
                 newTab.execute(template.dataSource, processedQuery).then(() => {
-                  console.log('新标签页查询执行完成')
+                 
                   
                   // 等待查询结果处理完成
                   setTimeout(() => {

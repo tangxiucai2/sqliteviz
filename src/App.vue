@@ -20,6 +20,12 @@ export default {
       return new URLSearchParams(window.location.search).get('embedded') === '1'
     }
   },
+  // 优化：使用缓存减少重复计算
+  provide() {
+    return {
+      isEmbeddedMode: this.isEmbeddedMode
+    }
+  },
   watch: {
     inquiries: {
       deep: true,
@@ -35,14 +41,11 @@ export default {
     }
   },
   created() {
-    // 初始化数据库实例
-    import('@/lib/database').then(({ default: database }) => {
-      if (!this.$store.state.db) {
-        const newDb = database.getNewDatabase()
-        newDb.loadDb()
-        this.$store.commit('setDb', newDb)
-      }
-    })
+    // 嵌入模式下清理现有标签页，避免内存泄漏
+    if (this.isEmbeddedMode) {
+      // 确保在创建新标签页之前清理所有现有标签页
+      this.$store.commit('clearTabs')
+    }
     
     // 非嵌入模式下才加载存储的查询
     if (!this.isEmbeddedMode) {
@@ -71,7 +74,8 @@ export default {
       }
     }
     
-    addEventListener('storage', event => {
+    // 添加storage事件监听器
+    this.storageEventListener = event => {
       // 非嵌入模式下才响应存储事件
       if (!this.isEmbeddedMode) {
         if (event.key === storedInquiries.myInquiriesKey) {
@@ -85,10 +89,31 @@ export default {
           console.error('Failed to parse stored dashboards from storage event:', e)
         }
       }
-    })
+    }
+    addEventListener('storage', this.storageEventListener)
+  },
+  
+  beforeUnmount() {
+    // 移除storage事件监听器，避免内存泄漏
+    if (this.storageEventListener) {
+      removeEventListener('storage', this.storageEventListener)
+      this.storageEventListener = null
+    }
+    
+    // 清理标签页，避免内存泄漏
+    if (this.isEmbeddedMode) {
+      this.$store.commit('clearTabs')
+    }
+    
+    // 清理数据库实例
+    this.$store.commit('clearDb')
+    
+    // 清理状态
+    this.$store.commit('setDashboards', [])
+    this.$store.commit('setInquiries', [])
   },
   methods: {
-    async loadReportTemplate(reportId, dsParam) {
+    async loadReportTemplate(reportId) {
       try {
         console.log('加载报表模板:', reportId)
         // 调用后端接口获取报表模板
@@ -104,7 +129,6 @@ export default {
         
         if (response.ok) {
           const data = await response.json()
-          console.log('报表模板加载成功:', data)
           
           if (data.code === 200 && data.data && data.data.template) {
             let templateData = data.data.template
@@ -114,7 +138,7 @@ export default {
             if (typeof templateData === 'string') {
               try {
                 templateData = JSON.parse(templateData)
-                console.log('解析后的模板对象:', templateData)
+               // console.log('解析后的模板对象:', templateData)
               } catch (error) {
                 console.error('解析模板字符串失败:', error)
               }
@@ -124,7 +148,7 @@ export default {
             let template = templateData
             if (templateData.version && templateData.inquiries && templateData.inquiries.length > 0) {
               template = templateData.inquiries[0]
-              console.log('从inquiries数组中获取模板:', template)
+              //console.log('从inquiries数组中获取模板:', template)
             }
             
             // 处理SQL查询语句，添加LIMIT子句
@@ -158,7 +182,6 @@ export default {
             }
             
             console.log('处理后的查询:', processedQuery)
-            console.log('数据源:', template.dataSource)
             
             // 根据viewType设置布局
             let layout
@@ -178,6 +201,10 @@ export default {
               }
             }
             
+            // 确定数据源，只使用模板中的dataSource值
+            const finalDataSource = template.dataSource || '1'
+            console.log('最终数据源:', finalDataSource)
+            
             // 创建新标签页，设置布局
             this.$store.dispatch('addTab', {
               query: template.query,
@@ -196,7 +223,7 @@ export default {
               },
               rowLimit: template.rowLimit || '100',
               customRowLimit: template.customRowLimit,
-              dataSource: dsParam || template.dataSource || '1',
+              dataSource: finalDataSource,
               layout: layout
             }).then(tabId => {
               console.log('创建标签页成功:', tabId)
@@ -210,27 +237,36 @@ export default {
                 )
                 
                 if (newTab) {
-                  console.log('获取新标签页成功，执行查询...')
                   // 在新标签页中执行查询
-                  newTab.execute(dsParam || template.dataSource || '1', processedQuery).then(() => {
-                    console.log('新标签页查询执行完成')
+                  newTab.execute(finalDataSource, processedQuery).then(() => {
+                    
+                    // 清理模板数据，避免内存泄漏
+                    templateData = null
+                    template = null
                     
                     // 等待查询结果处理完成
                     setTimeout(() => {
                       // 检查新标签页的查询结果
                       if (newTab.result && newTab.result.values) {
-                        console.log('新标签页查询结果:', newTab.result)
+                        //console.log('新标签页查询结果:', newTab.result)
                         console.log('结果集列数:', newTab.result.columns.length)
                         console.log('结果集行数:', newTab.result.values[newTab.result.columns[0]].length)
-                        console.log('图表类型:', template.viewType)
-                        console.log('图表选项:', template.viewOptions)
+                        console.log('图表类型:', template ? template.viewType : 'unknown')
+                        console.log('图表选项:', template ? template.viewOptions : 'unknown')
                       } else {
                         console.error('新标签页查询结果为空或格式不正确')
                       }
                     }, 1000)
                   }).catch(error => {
                     console.error('新标签页查询执行失败:', error)
+                    // 清理模板数据，避免内存泄漏
+                    templateData = null
+                    template = null
                   })
+                } else {
+                  // 清理模板数据，避免内存泄漏
+                  templateData = null
+                  template = null
                 }
               }, 1000)
             })
@@ -291,7 +327,7 @@ input,
 label,
 button,
 .plotly_editor * {
-  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

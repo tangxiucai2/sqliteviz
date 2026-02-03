@@ -36,7 +36,7 @@
       </template>
     </component>
 
-    <side-tool-bar panel="table" @switch-to="$emit('switchTo', $event)">
+    <side-tool-bar :showToggleButtons="showToggleButtons" panel="table" @switch-to="$emit('switchTo', $event)">
       <icon-button
         :disabled="!result"
         tooltip="将结果集导出为CSV文件"
@@ -180,7 +180,11 @@ export default {
     result: Object,
     isGettingResults: Boolean,
     error: Object,
-    time: [String, Number]
+    time: [String, Number],
+    showToggleButtons: {
+      type: Boolean,
+      default: true
+    }
   },
   emits: ['switchTo'],
   data() {

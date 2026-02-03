@@ -31,13 +31,19 @@
 
 <script>
 import ReactPlotlyEditorWithPlotRef from '@/lib/ReactPlotlyEditorWithPlotRef.jsx'
-import chartHelper from '@/lib/chartHelper'
+import chartHelper, { applyChineseLocalization } from '@/lib/chartHelper'
 import events from '@/lib/utils/events'
 import fIo from '@/lib/utils/fileIo'
-import plotly from 'plotly.js-dist-min'
+import plotly from 'plotly.js'
+import zhCN from 'plotly.js/lib/locales/zh-cn'
 import * as dereference from 'react-chart-editor/lib/lib/dereference'
 import 'react-chart-editor/lib/react-chart-editor.css'
 import { applyPureReactInVue } from 'veaury'
+
+// 为Chart组件的plotly实例应用中文本地化
+applyChineseLocalization(plotly)
+// 注册官方中文本地化
+plotly.register(zhCN)
 
 export default {
   name: 'Chart',
@@ -63,7 +69,12 @@ export default {
       plotly,
       state: this.initOptions || {
         data: [],
-        layout: { autosize: true },
+        layout: { 
+          autosize: true,
+          modebar: {
+            orientation: 'h' // 水平方向
+          }
+        },
         frames: []
       },
       config: {
@@ -850,7 +861,16 @@ export default {
   created() {
     // https://github.com/plotly/plotly.js/issues/4555
     plotly.setPlotConfig({
-      notifyOnLogging: 1
+      notifyOnLogging: 1,
+      // 禁用外部资源加载，避免加载Google Fonts
+      showLink: false,
+      displayModeBar: true,
+      // 禁用自动加载Google Fonts
+      modeBarButtonsToRemove: ['sendDataToCloud'],
+      // 使用本地字体，不加载外部字体
+      font: {
+        family: 'Open Sans'
+      }
     })
     this.$watch(
       () =>
@@ -885,7 +905,34 @@ export default {
     this.useResizeHandler = false
   },
   beforeUnmount() {
-    this.resizeObserver.unobserve(this.$refs.chartContainer)
+    // 清理Plotly实例和相关资源
+    if (this.$refs.plotlyEditor && this.$refs.plotlyEditor.plotComponentRef.current) {
+      const plotComponent = this.$refs.plotlyEditor.plotComponentRef.current
+      // 尝试清理Plotly实例
+      if (plotComponent && plotComponent.props && plotComponent.props.divId) {
+        try {
+          plotly.purge(plotComponent.props.divId)
+        } catch (error) {
+          console.warn('Error purging Plotly instance:', error)
+        }
+      }
+      // 清理引用
+      plotComponent.props = null
+      this.$refs.plotlyEditor.plotComponentRef.current = null
+    }
+    // 清理ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.unobserve(this.$refs.chartContainer)
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
+    // 清理状态数据
+    this.state = { data: [], layout: {}, frames: [] }
+    // 清理引用
+    this.$refs.plotlyEditor = null
+    this.$refs.chartContainer = null
+    // 清理配置
+    this.config = null
   },
   methods: {
     async handleResize() {
@@ -966,9 +1013,36 @@ export default {
 
 .chart {
   min-height: 242px;
+  min-width: 800px;
 }
 
 :deep(.editor_controls .sidebar__item:before) {
   width: 0;
+}
+
+/* 强制模式栏按钮水平显示 */
+:deep(.modebar-container) {
+  width: auto !important;
+  min-width: 600px !important;
+}
+
+:deep(.modebar) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: auto !important;
+  white-space: nowrap !important;
+}
+
+:deep(.modebar-group) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  margin-right: 8px !important;
+}
+
+:deep(.modebar-btn) {
+  flex: 0 0 auto !important;
+  margin-right: 4px !important;
 }
 </style>

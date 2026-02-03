@@ -13,6 +13,23 @@ export default class ReactPlotlyEditorWithPlotRef extends ReactPlotlyEditor {
     super(props)
     this.plotComponentRef = createRef()
   }
+  componentWillUnmount() {
+    // 清理引用
+    if (this.plotComponentRef.current) {
+      // 清理组件的props，避免内存泄漏
+      if (this.plotComponentRef.current.props) {
+        this.plotComponentRef.current.props = null
+      }
+      this.plotComponentRef.current = null
+    }
+    // 清理其他引用
+    this.props = null
+    this.state = null
+    // 调用父类的componentWillUnmount方法
+    if (super.componentWillUnmount) {
+      super.componentWillUnmount()
+    }
+  }
   render() {
     return (
       <div className="plotly_editor">

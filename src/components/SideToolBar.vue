@@ -1,27 +1,31 @@
 <template>
   <div class="side-tool-bar">
-    <icon-button
-      ref="tableBtn"
-      :active="panel === 'table'"
-      tooltip="切换到结果集面板"
-      tooltipPosition="top-left"
-      @click="$emit('switchTo', 'table')"
-    >
-      <table-icon />
-    </icon-button>
+    <!-- 切换面板按钮，可通过showToggleButtons控制是否显示 -->
+    <template v-if="showToggleButtons">
+      <icon-button
+        ref="tableBtn"
+        :active="panel === 'table'"
+        tooltip="切换到结果集面板"
+        tooltipPosition="top-left"
+        @click="$emit('switchTo', 'table')"
+      >
+        <table-icon />
+      </icon-button>
 
-    <icon-button
-      ref="dataViewBtn"
-      :active="panel === 'dataView'"
-      tooltip="切换到数据视图面板"
-      tooltipPosition="top-left"
-      @click="$emit('switchTo', 'dataView')"
-    >
-      <data-view-icon />
-    </icon-button>
+      <icon-button
+        ref="dataViewBtn"
+        :active="panel === 'dataView'"
+        tooltip="切换到数据视图面板"
+        tooltipPosition="top-left"
+        @click="$emit('switchTo', 'dataView')"
+      >
+        <data-view-icon />
+      </icon-button>
 
-    <div v-if="$slots.default" class="side-tool-bar-divider" />
+      <div v-if="$slots.default" class="side-tool-bar-divider" />
+    </template>
 
+    <!-- 插槽，用于放置自定义按钮，如导出等 -->
     <slot />
   </div>
 </template>
@@ -41,7 +45,11 @@ export default {
     TableIcon
   },
   props: {
-    panel: String
+    panel: String,
+    showToggleButtons: {
+      type: Boolean,
+      default: true
+    }
   },
   emits: ['switchTo']
 }

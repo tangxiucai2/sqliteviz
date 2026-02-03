@@ -56,7 +56,11 @@ export default {
   },
   async beforeCreate() {
     // 简化逻辑，只根据tabs长度决定是否创建新标签页
-    if (this.$store.state.tabs.length === 0) {
+    // 嵌入模式和报表模式下不创建新标签页，因为 App.vue 已经会创建
+    const isEmbeddedMode = new URLSearchParams(window.location.search).get('embedded') === '1'
+    const isReportMode = new URLSearchParams(window.location.search).get('mode') === 'report'
+    
+    if (!isEmbeddedMode && !isReportMode && this.$store.state.tabs.length === 0) {
       const stmt = ''
 
       const tabId = await this.$store.dispatch('addTab', { query: stmt })
