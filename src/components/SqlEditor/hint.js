@@ -25,7 +25,7 @@ export function getHints(cm, options) {
 const hintOptions = {
   get tables() {
     const tables = {}
-    if (store.state.db.schema) {
+    if (store.state.db && store.state.db.schema) {
       store.state.db.schema.forEach(table => {
         tables[table.name] = table.columns.map(column => column.name)
       })
@@ -33,7 +33,7 @@ const hintOptions = {
     return tables
   },
   get defaultTable() {
-    const schema = store.state.db.schema
+    const schema = store.state.db && store.state.db.schema
     return schema && schema.length === 1 ? schema[0].name : null
   },
   completeSingle: false,

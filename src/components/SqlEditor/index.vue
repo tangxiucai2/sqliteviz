@@ -153,7 +153,7 @@ export default {
   },
   computed: {
     runDisabled() {
-      if (!this.$store.state.db || !this.query || this.isGettingResults) {
+      if (!this.query || this.isGettingResults) {
         return true
       }
       
