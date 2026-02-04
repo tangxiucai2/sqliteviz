@@ -1,6 +1,6 @@
 <template>
   <div class="data-view-panel">
-    <div class="data-view-panel-content">
+    <div class="data-view-panel-content" style="width: 100%; height: 100%; min-height: 400px;">
       <component
         :is="mode"
         ref="viewComponent"
@@ -15,50 +15,55 @@
         @update="$emit('update')"
       />
     </div>
-    <!-- 非报表模式下显示侧边栏 -->
-    <side-tool-bar v-if="internalShowViewSettings" :showToggleButtons="showToggleButtons" panel="dataView" @switch-to="$emit('switchTo', $event)">
-      <icon-button
-        ref="chartBtn"
-        :active="mode === 'chart'"
-        tooltip="切换到图表"
-        tooltipPosition="top-left"
-        @click="mode = 'chart'"
-      >
-        <chart-icon />
-      </icon-button>
-      <icon-button
-        ref="pivotBtn"
-        :active="mode === 'pivot'"
-        tooltip="切换到透视表"
-        tooltipPosition="top-left"
-        @click="mode = 'pivot'"
-      >
-        <pivot-icon />
-      </icon-button>
-      <icon-button
-        v-show="false"
-        ref="graphBtn"
-        :active="mode === 'graph'"
-        tooltip="切换到图形"
-        tooltipPosition="top-left"
-        @click="mode = 'graph'"
-      >
-        <graph-icon />
-      </icon-button>
+    <!-- 显示侧边工具栏，根据是否为报表模式控制按钮显示 -->
+    <side-tool-bar v-if="true" :showToggleButtons="showToggleButtons" panel="dataView" @switch-to="$emit('switchTo', $event)">
+      <!-- 非报表模式下显示切换按钮 -->
+      <template v-if="!isReportMode">
+        <icon-button
+          ref="chartBtn"
+          :active="mode === 'chart'"
+          tooltip="切换到图表"
+          tooltipPosition="top-left"
+          @click="mode = 'chart'"
+        >
+          <chart-icon />
+        </icon-button>
+        <icon-button
+          ref="pivotBtn"
+          :active="mode === 'pivot'"
+          tooltip="切换到透视表"
+          tooltipPosition="top-left"
+          @click="mode = 'pivot'"
+        >
+          <pivot-icon />
+        </icon-button>
+        <icon-button
+          v-show="false"
+          ref="graphBtn"
+          :active="mode === 'graph'"
+          tooltip="切换到图形"
+          tooltipPosition="top-left"
+          @click="mode = 'graph'"
+        >
+          <graph-icon />
+        </icon-button>
 
-      <div class="side-tool-bar-divider" />
+        <div class="side-tool-bar-divider" />
 
-      <icon-button
-        ref="settingsBtn"
-        :active="internalShowViewSettings"
-        tooltip="图表设置"
-        tooltipPosition="top-left"
-        @click="internalShowViewSettings = !internalShowViewSettings"
-      >
-        <settings-icon />
-      </icon-button>
+        <icon-button
+          ref="settingsBtn"
+          :active="internalShowViewSettings"
+          tooltip="图表设置"
+          tooltipPosition="top-left"
+          @click="internalShowViewSettings = !internalShowViewSettings"
+        >
+          <settings-icon />
+        </icon-button>
 
-      <div class="side-tool-bar-divider" />
+        <div class="side-tool-bar-divider" />
+      </template>
+      <!-- 报表模式下添加分隔线 -->
+      <div v-if="isReportMode" class="side-tool-bar-divider" />
 
       <icon-button
         ref="pngExportBtn"
@@ -168,6 +173,10 @@ export default {
     showToggleButtons: {
       type: Boolean,
       default: true
+    },
+    isReportMode: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['update', 'switchTo'],

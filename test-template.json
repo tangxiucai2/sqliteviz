@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "inquiries": [
+        {
+            "id": "udopr3hB-KFh3sLepCttk",
+            "name": "未命名查询",
+            "query": "SELECT * from host",
+            "viewType": "table",
+            "viewOptions": {},
+            "updatedAt": "2026-02-03T07:10:36.771Z",
+            "rowLimit": "100",
+            "customRowLimit": "",
+            "dataSource": "1"
+        }
+    ]
+}

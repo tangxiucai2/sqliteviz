@@ -21,7 +21,7 @@
           class="toolbar-btn secondary-btn"
           @click="exportReportTemplate"
         >
-          导出报表配置
+          导出模板配置
         </button>
         <button 
           class="toolbar-btn secondary-btn"
@@ -144,13 +144,6 @@ export default {
       }
     }
   },
-  created() {
-    console.log('SqlEditor组件创建，接收到的dataSource:', this.dataSource)
-    console.log('SqlEditor组件创建，localDataSource初始值:', this.localDataSource)
-    // 手动设置localDataSource的值，确保它使用的是已经初始化好的props值
-    this.localDataSource = this.dataSource
-    console.log('SqlEditor组件创建，localDataSource更新后的值:', this.localDataSource)
-  },
   computed: {
     runDisabled() {
       if (!this.query || this.isGettingResults) {
@@ -210,6 +203,13 @@ export default {
       },
       immediate: true
     }
+  },
+  created() {
+    console.log('SqlEditor组件创建，接收到的dataSource:', this.dataSource)
+    console.log('SqlEditor组件创建，localDataSource初始值:', this.localDataSource)
+    // 手动设置localDataSource的值，确保它使用的是已经初始化好的props值
+    this.localDataSource = this.dataSource
+    console.log('SqlEditor组件创建，localDataSource更新后的值:', this.localDataSource)
   },
   methods: {
     onChange: time.debounce((value, editor) => showHint(editor), 400),
@@ -532,7 +532,7 @@ export default {
             console.log('导入的自定义行数:', template.customRowLimit)
           }
           if (template.dataSource !== undefined) {
-            this.dataSource = template.dataSource
+            this.localDataSource = template.dataSource
             console.log('导入的数据源:', template.dataSource)
           }
           
@@ -569,6 +569,24 @@ export default {
           console.log('处理后的查询:', processedQuery)
           console.log('数据源:', template.dataSource)
           
+          // 根据viewType设置布局
+          let layout;
+          if (template.viewType === 'table') {
+            // 表格视图，显示表格
+            layout = {
+              sqlEditor: 'above',
+              table: 'bottom',
+              dataView: 'hidden'
+            };
+          } else {
+            // 图表视图，显示数据视图
+            layout = {
+              sqlEditor: 'above',
+              table: 'hidden',
+              dataView: 'bottom'
+            };
+          }
+          
           // 直接创建新标签页，使用模板中的配置
           this.$store.dispatch('addTab', {
             query: template.query,
@@ -578,11 +596,7 @@ export default {
             rowLimit: template.rowLimit,
             customRowLimit: template.customRowLimit,
             dataSource: template.dataSource,
-            layout: {
-              sqlEditor: 'above',
-              table: 'hidden',
-              dataView: 'bottom'
-            }
+            layout: layout
           }).then(newTabId => {
             console.log('创建新标签页成功:', newTabId)
             
@@ -596,7 +610,9 @@ export default {
               if (newTab) {
                 // 只在新标签页中执行一次查询
                 newTab.execute(template.dataSource, processedQuery).then(() => {
-                 
+                  // 保存模板信息用于日志
+                  const templateViewType = template.viewType
+                  const templateViewOptions = template.viewOptions
                   
                   // 等待查询结果处理完成
                   setTimeout(() => {
@@ -605,8 +621,8 @@ export default {
                       console.log('新标签页查询结果:', newTab.result)
                       console.log('结果集列数:', newTab.result.columns.length)
                       console.log('结果集行数:', newTab.result.values[newTab.result.columns[0]].length)
-                      console.log('图表类型:', template.viewType)
-                      console.log('图表选项:', template.viewOptions)
+                      console.log('图表类型:', templateViewType)
+                      console.log('图表选项:', templateViewOptions)
                     } else {
                       console.error('新标签页查询结果为空或格式不正确')
                       alert('查询结果为空，请检查SQL语句')

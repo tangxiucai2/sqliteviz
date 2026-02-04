@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    <tab v-for="tab in tabs" :key="tab.id" :tab="tab" :is-report-mode="isReportMode" />
+    <tab v-for="tab in tabs" :key="tab.id" :tab="tab" :isReportMode="isReportMode" />
     <div v-show="!isReportMode && tabs.length === 0" id="start-guide">
       <span class="link" @click="emitCreateTabEvent">创建</span>
       一个新查询或从

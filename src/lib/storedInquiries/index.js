@@ -18,19 +18,25 @@ export default {
   // 获取查询报表列表
   async getStoredInquiries() {
     try {
-      const response = await fetch(buildUrl(endpoints.inquiries.list), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+      // 检查endpoints.inquiries是否存在
+      if (endpoints.inquiries && endpoints.inquiries.list) {
+        const response = await fetch(buildUrl(endpoints.inquiries.list), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch inquiries: ${response.status}`)
         }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch inquiries: ${response.status}`)
+        
+        const data = await response.json()
+        return data.inquiries || []
+      } else {
+        // 后端API不存在，返回空数组
+        return []
       }
-      
-      const data = await response.json()
-      return data.inquiries || []
     } catch (error) {
       console.error('Error fetching inquiries:', error)
       return []
@@ -132,22 +138,29 @@ export default {
   // 导出查询报表
   async export(inquiryList, fileName) {
     try {
-      // 先尝试使用后端API导出
-      const response = await fetch(buildUrl(endpoints.inquiries.export), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          inquiryIds: inquiryList.map(inquiry => inquiry.id)
+      // 检查endpoints.inquiries是否存在
+      if (endpoints.inquiries && endpoints.inquiries.export) {
+        // 先尝试使用后端API导出
+        const response = await fetch(buildUrl(endpoints.inquiries.export), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            inquiryIds: inquiryList.map(inquiry => inquiry.id)
+          })
         })
-      })
-      
-      if (response.ok) {
-        const blob = await response.blob()
-        fu.exportBlobToFile(blob, fileName)
+        
+        if (response.ok) {
+          const blob = await response.blob()
+          fu.exportBlobToFile(blob, fileName)
+        } else {
+          // 失败时使用本地导出作为降级方案
+          const jsonStr = this.serialiseInquiries(inquiryList)
+          fu.exportToFile(jsonStr, fileName)
+        }
       } else {
-        // 失败时使用本地导出作为降级方案
+        // 后端API不存在，直接使用本地导出
         const jsonStr = this.serialiseInquiries(inquiryList)
         fu.exportToFile(jsonStr, fileName)
       }

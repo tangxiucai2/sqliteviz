@@ -2,11 +2,11 @@
   <div class="dashboard-container">
     <div class="dashboard-header">
       <h1>仪表板</h1>
-      <button class="primary" @click="createDashboard" v-if="!previewMode">创建新仪表板</button>
+      <button v-if="!previewMode" class="primary" @click="createDashboard">创建新仪表板</button>
     </div>
     
     <!-- 仪表板列表 -->
-    <div class="dashboard-list" v-if="!selectedDashboard && !previewMode">
+    <div v-if="!selectedDashboard && !previewMode" class="dashboard-list">
       <h2>我的仪表板</h2>
       <div class="dashboard-cards">
         <div 
@@ -31,7 +31,7 @@
     </div>
     
     <!-- 仪表板编辑和显示 -->
-    <div class="dashboard-edit" v-else-if="selectedDashboard && !previewMode">
+    <div v-else-if="selectedDashboard && !previewMode" class="dashboard-edit">
       <div class="dashboard-edit-header">
         <button class="secondary" @click="backToList">返回列表</button>
         <h2>{{ selectedDashboard.name }}</h2>
@@ -83,7 +83,7 @@
                 <button class="delete-btn" @click.stop="removeWidget(index)">删除</button>
               </div>
             </div>
-            <div class="widget-config" v-if="isWidgetExpanded(widget.id)">
+            <div v-if="isWidgetExpanded(widget.id)" class="widget-config">
               <div class="form-row full-row">
                 <text-field 
                   v-model="widget.name" 
@@ -142,8 +142,8 @@
     </div>
     
     <!-- 仪表板预览 -->
-    <div class="dashboard-preview-mode" v-if="previewMode">
-      <div class="dashboard-preview-header" v-if="!isFullscreen">
+    <div v-if="previewMode" class="dashboard-preview-mode">
+      <div v-if="!isFullscreen" class="dashboard-preview-header">
         <button class="secondary" @click="exitPreview">退出预览</button>
         <h2>{{ currentPreviewDashboard.name }}</h2>
         <div class="dashboard-preview-actions">
@@ -153,7 +153,7 @@
       </div>
       
       <!-- 浮动退出全屏按钮 -->
-      <button class="exit-fullscreen-btn" v-if="isFullscreen" @click="toggleFullscreen">
+      <button v-if="isFullscreen" class="exit-fullscreen-btn" @click="toggleFullscreen">
         退出全屏
       </button>
       

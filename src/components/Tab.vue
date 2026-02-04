@@ -19,8 +19,9 @@
         :data-source="(tab.result && tab.result.values) || null"
         :initOptions="tab.viewOptions"
         :initMode="tab.viewType"
-        :showViewSettings="true"
+        :showViewSettings="false"
         :showToggleButtons="false"
+        :isReportMode="isReportMode"
         @update="onDataViewUpdate"
       />
     </div>

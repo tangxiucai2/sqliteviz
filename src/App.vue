@@ -9,6 +9,12 @@ import config from '@/config';
 import storedInquiries from '@/lib/storedInquiries';
 
 export default {
+  // 优化：使用缓存减少重复计算
+  provide() {
+    return {
+      isEmbeddedMode: this.isEmbeddedMode
+    }
+  },
   computed: {
     inquiries() {
       return this.$store.state.inquiries
@@ -18,12 +24,6 @@ export default {
     },
     isEmbeddedMode() {
       return new URLSearchParams(window.location.search).get('embedded') === '1'
-    }
-  },
-  // 优化：使用缓存减少重复计算
-  provide() {
-    return {
-      isEmbeddedMode: this.isEmbeddedMode
     }
   },
   watch: {
@@ -155,10 +155,16 @@ export default {
               template = templateData
               if (templateData.version && templateData.inquiries && templateData.inquiries.length > 0) {
                 template = templateData.inquiries[0]
-                //console.log('从inquiries数组中获取模板:', template)
+                console.log('从inquiries数组中获取模板:', template)
+                console.log('inquiries模板类型:', template.viewType)
+              } else {
+                console.log('直接使用templateData作为模板:', templateData)
+                console.log('templateData模板类型:', templateData.viewType)
               }
               
               if (template && template.query) {
+                console.log('最终模板对象:', template)
+                console.log('最终模板类型:', template.viewType)
                 // 处理SQL查询语句，添加LIMIT子句
                 let processedQuery = template.query.trim()
                 
@@ -213,6 +219,12 @@ export default {
                 const finalDataSource = template.dataSource || '1'
                 console.log('最终数据源:', finalDataSource)
                 
+                // 保存模板信息用于日志
+                const templateViewType = template.viewType || 'unknown'
+                const templateViewOptions = template.viewOptions || 'unknown'
+                console.log('保存的模板类型:', templateViewType)
+                console.log('保存的模板选项:', templateViewOptions)
+                
                 // 创建新标签页，设置布局
                 this.$store.dispatch('addTab', {
                   query: template.query,
@@ -259,8 +271,8 @@ export default {
                             //console.log('新标签页查询结果:', newTab.result)
                             console.log('结果集列数:', newTab.result.columns.length)
                             console.log('结果集行数:', newTab.result.values[newTab.result.columns[0]].length)
-                            console.log('图表类型:', template ? template.viewType : 'unknown')
-                            console.log('图表选项:', template ? template.viewOptions : 'unknown')
+                            console.log('图表类型:', templateViewType)
+                            console.log('图表选项:', templateViewOptions)
                           } else {
                             console.error('新标签页查询结果为空或格式不正确')
                           }

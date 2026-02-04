@@ -34,16 +34,14 @@ import ReactPlotlyEditorWithPlotRef from '@/lib/ReactPlotlyEditorWithPlotRef.jsx
 import chartHelper, { applyChineseLocalization } from '@/lib/chartHelper'
 import events from '@/lib/utils/events'
 import fIo from '@/lib/utils/fileIo'
-import plotly from 'plotly.js'
-import zhCN from 'plotly.js/lib/locales/zh-cn'
+import plotly from 'plotly.js-dist-min'
+// 直接使用chartHelper中已经注册的中文本地化
 import * as dereference from 'react-chart-editor/lib/lib/dereference'
 import 'react-chart-editor/lib/react-chart-editor.css'
 import { applyPureReactInVue } from 'veaury'
 
 // 为Chart组件的plotly实例应用中文本地化
 applyChineseLocalization(plotly)
-// 注册官方中文本地化
-plotly.register(zhCN)
 
 export default {
   name: 'Chart',
@@ -859,6 +857,10 @@ export default {
     }
   },
   created() {
+    // 调试信息：检查是否在iframe中
+    console.log('Chart组件创建，是否在iframe中:', window.self !== window.top)
+    console.log('Chart组件创建，窗口尺寸:', window.innerWidth, 'x', window.innerHeight)
+    
     // https://github.com/plotly/plotly.js/issues/4555
     plotly.setPlotConfig({
       notifyOnLogging: 1,
@@ -870,7 +872,19 @@ export default {
       // 使用本地字体，不加载外部字体
       font: {
         family: 'Open Sans'
-      }
+      },
+      // 确保在iframe中正常工作
+      responsive: true,
+      // 禁用autosize，手动控制尺寸
+      autosize: false,
+      // 确保在打包后的文件中正常工作
+      staticPlot: false,
+      // 禁用动画，提高渲染速度
+      displayModeBar: true,
+      // 禁用scrollZoom，避免在iframe中出现问题
+      scrollZoom: false,
+      // 禁用editable，避免在iframe中出现问题
+      editable: false
     })
     this.$watch(
       () =>
@@ -891,8 +905,24 @@ export default {
     this.$emit('update:exportToHtmlEnabled', true)
   },
   mounted() {
+    console.log('Chart组件挂载，chartContainer引用:', this.$refs.chartContainer)
+    if (this.$refs.chartContainer) {
+      console.log('Chart容器尺寸:', this.$refs.chartContainer.offsetWidth, 'x', this.$refs.chartContainer.offsetHeight)
+      console.log('Chart容器样式:', window.getComputedStyle(this.$refs.chartContainer))
+      
+      // 如果容器尺寸为0，设置一个默认尺寸
+      if (this.$refs.chartContainer.offsetWidth === 0 || this.$refs.chartContainer.offsetHeight === 0) {
+        console.log('容器尺寸为0，设置默认尺寸')
+        this.$refs.chartContainer.style.width = '100%'
+        this.$refs.chartContainer.style.height = '400px'
+        console.log('设置后容器尺寸:', this.$refs.chartContainer.offsetWidth, 'x', this.$refs.chartContainer.offsetHeight)
+      }
+    }
+    
     this.resizeObserver = new ResizeObserver(this.handleResize)
-    this.resizeObserver.observe(this.$refs.chartContainer)
+    if (this.$refs.chartContainer) {
+      this.resizeObserver.observe(this.$refs.chartContainer)
+    }
     if (this.dataSources) {
       dereference.default(this.state.data, this.dataSources)
     }

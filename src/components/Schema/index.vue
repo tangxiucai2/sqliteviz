@@ -8,7 +8,7 @@
         <tree-chevron v-show="schema.length > 0" :expanded="schemaVisible" />
         {{ dbName }}
       </div>
-      <button v-if="isEmbeddedMode" class="save-config-btn" @click="saveConfig" tooltip="保存配置">
+      <button v-if="isEmbeddedMode" class="save-config-btn" tooltip="保存配置" @click="saveConfig">
         保存
       </button>
     </div>

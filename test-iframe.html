@@ -105,8 +105,12 @@
                 <button onclick="updateIframe()">更新 iframe</button>
             </div>
             
-            <div class="iframe-container">
-                <iframe id="sqliteviz-iframe" src="dist/index.html?apiBaseUrl=http://localhost:5200/soag/api"></iframe>
+            <div class="iframe-container">http://localhost:5173/?apiBaseUrl=http://localhost:5200/soag/api&embedded=1&id=1&mode=report#/workspace
+                <iframe id="sqliteviz-iframe" src="dist/index.html?apiBaseUrl=http://localhost:5200/soag/api&embedded=1&id=1&mode=report#/workspace" onload="iframeLoaded()"></iframe>
+            </div>
+            <div id="iframe-debug" class="usage-example">
+                <h3>iframe 调试信息</h3>
+                <div id="iframe-debug-content">加载中...</div>
             </div>
         </div>
         
@@ -150,7 +154,32 @@
         function updateIframe() {
             const apiBaseUrl = document.getElementById('apiBaseUrl').value;
             const iframe = document.getElementById('sqliteviz-iframe');
-            iframe.src = `dist/index.html?apiBaseUrl=${encodeURIComponent(apiBaseUrl)}`;
+            iframe.src = `http://localhost:8080/dist/index.html?apiBaseUrl=${encodeURIComponent(apiBaseUrl)}&embedded=1&id=1&mode=report#/workspace`;
+        }
+        
+        function iframeLoaded() {
+            const iframe = document.getElementById('sqliteviz-iframe');
+            const debugContent = document.getElementById('iframe-debug-content');
+            
+            // 显示基本信息
+            debugContent.innerHTML = `
+                <p><strong>iframe 加载完成</strong></p>
+                <p>URL: ${iframe.src}</p>
+                <p>尺寸: ${iframe.offsetWidth}px × ${iframe.offsetHeight}px</p>
+                <p>尝试访问 iframe 内容: ${tryAccessIframeContent()}</p>
+            `;
+        }
+        
+        function tryAccessIframeContent() {
+            const iframe = document.getElementById('sqliteviz-iframe');
+            try {
+                // 尝试访问 iframe 的内容
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const iframeTitle = iframeDoc.title;
+                return `成功，标题: ${iframeTitle}`;
+            } catch (e) {
+                return `失败，错误: ${e.message}`;
+            }
         }
     </script>
 </body>

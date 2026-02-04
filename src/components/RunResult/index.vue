@@ -398,6 +398,7 @@ export default {
   color: var(--color-text-base);
   font-size: 13px;
   text-align: center;
+  margin-top: 10px;
 }
 
 .result-in-progress {

@@ -28,7 +28,7 @@ export default {
 
 /* 嵌入模式样式 */
 #app[data-embedded="true"] #main-view {
-  margin-top: 0;
-  height: 100vh;
+  margin-top: 10px;
+  height: calc(100vh - 10px);
 }
 </style>
